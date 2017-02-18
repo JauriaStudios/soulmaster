@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collections import namedtuple
 
 from sdl2 import *
 import sdl2.ext
@@ -9,10 +8,7 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
 class MotionType:
     STANDING = 0
-    # INTERACTING = 1
     WALKING = 1
-    # JUMPING = 3
-    # FALLING = 4
     COUNT = 2
 
 
@@ -58,33 +54,9 @@ class Player:
 
             self.load_image(self.player_sprites[motion_type], motion_type)
 
-    def init_sprites(self):
-
-        for sprite_sheet in self.sprite_sheets:
-            width = self.sprite_sheets[sprite_sheet].size[0]
-            height = self.sprite_sheets[sprite_sheet].size[1]
-
-            sprite_size = self.sprite_size
-
-            sprites_list_x = []
-            sprites_list_y = []
-
-            num_sprites_x = int(width / sprite_size)
-            num_sprites_y = int(height / sprite_size)
-            for sprites_x in range(num_sprites_x):
-                for sprites_y in range(num_sprites_y):
-                    sprite = self.sprite_sheets[sprite_sheet].subsprite((sprites_x * sprite_size, sprites_y * sprite_size, sprite_size, sprite_size))
-
-                    sprites_list_y.append(sprite)
-                sprites_list_x.append(sprites_list_y)
-
-            self.sprites[sprite_sheet] = sprites_list_x
-
     def update(self, motion_type, facing, elapsed_time):
         self.motion_type = motion_type
         self.facing = facing
-
-        
 
         self.frame_index += 1
 
@@ -95,7 +67,6 @@ class Player:
             self.frame_index = 0
 
         self.last_facing = self.facing
-
 
     def draw(self):
 
