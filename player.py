@@ -43,7 +43,10 @@ class Player:
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
+
         self.motion_type = MotionType.STANDING
+        self.last_motion_type = self.motion_type
+
         self.frame_index = 0
 
         self.init_sprite_sheet()
@@ -60,13 +63,14 @@ class Player:
 
         self.frame_index += 1
 
-        if self.facing != self.last_facing:
+        if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
 
         if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / 64):
             self.frame_index = 0
 
         self.last_facing = self.facing
+        self.last_motion_type = self.motion_type
 
     def draw(self):
 
