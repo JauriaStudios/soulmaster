@@ -11,6 +11,7 @@ if sys.platform == "win32":
 
 from sdl2 import *
 import sdl2.ext
+import sdl2.sdlttf
 
 from input import Input
 from map import TiledRenderer
@@ -30,6 +31,8 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 class Game(object):
     def __init__(self, window):
 
+        sdl2.sdlttf.TTF_Init()
+
         map_file = RESOURCES.get_path("map.tmx")
 
         self.running = False
@@ -40,6 +43,8 @@ class Game(object):
         self.player = Player(self.sdl_renderer)
 
     def __del__(self):
+
+        sdl2.sdlttf.TTF_Quit()
         SDL_Quit()
 
     def draw(self):
