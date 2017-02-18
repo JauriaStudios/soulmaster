@@ -1,0 +1,130 @@
+# -*- coding: utf-8 -*-
+from collections import namedtuple
+
+from sdl2 import *
+import sdl2.ext
+
+RESOURCES = sdl2.ext.Resources(__file__, 'resources')
+
+
+class MotionType:
+    STANDING = 0
+    # INTERACTING = 1
+    WALKING = 1
+    # JUMPING = 3
+    # FALLING = 4
+    COUNT = 2
+
+
+class Facing:
+    LEFT_DOWN = 0
+    DOWN = 1
+    RIGHT_DOWN = 2
+    RIGHT = 3
+    RIGHT_UP = 4
+    UP = 5
+    LEFT_UP = 6
+    LEFT = 7
+    COUNT = 8
+
+
+class Player:
+    def __init__(self, renderer):
+        self.renderer = renderer
+
+        self.sprite_size = 64
+
+        self.player_sprites = [
+            RESOURCES.get_path("player_standing.png"),
+            RESOURCES.get_path("player_walking.png")
+        ]
+
+        self.factory = sdl2.ext.SpriteFactory(
+            sdl2.ext.TEXTURE, renderer=self.renderer)
+
+        self.sprite_sheets = {}
+        self.sprites = {}
+
+        self.facing = Facing.LEFT_DOWN
+        self.last_facing = self.facing
+        self.motion_type = MotionType.STANDING
+        self.frame_index = 0
+
+        self.init_sprite_sheet()
+
+    def init_sprite_sheet(self):
+
+        for motion_type in range(MotionType.COUNT):
+
+            self.load_image(self.player_sprites[motion_type], motion_type)
+
+    def init_sprites(self):
+
+        for sprite_sheet in self.sprite_sheets:
+            width = self.sprite_sheets[sprite_sheet].size[0]
+            height = self.sprite_sheets[sprite_sheet].size[1]
+
+            sprite_size = self.sprite_size
+
+            sprites_list_x = []
+            sprites_list_y = []
+
+            num_sprites_x = int(width / sprite_size)
+            num_sprites_y = int(height / sprite_size)
+            for sprites_x in range(num_sprites_x):
+                for sprites_y in range(num_sprites_y):
+                    sprite = self.sprite_sheets[sprite_sheet].subsprite((sprites_x * sprite_size, sprites_y * sprite_size, sprite_size, sprite_size))
+
+                    sprites_list_y.append(sprite)
+                sprites_list_x.append(sprites_list_y)
+
+            self.sprites[sprite_sheet] = sprites_list_x
+
+    def update(self, motion_type, facing, elapsed_time):
+        self.motion_type = motion_type
+        self.facing = facing
+
+        
+
+        self.frame_index += 1
+
+        if self.facing != self.last_facing:
+            self.frame_index = 0
+
+        if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / 64):
+            self.frame_index = 0
+
+        self.last_facing = self.facing
+
+
+    def draw(self):
+
+        renderer = self.renderer.renderer
+        motion_type = self.motion_type
+        facing = self.facing
+        frame_index = self.frame_index
+
+        sprite = self.sprite_sheets[motion_type]
+        sprite_size = self.sprite_size
+
+        src_rect = SDL_Rect()
+
+        src_rect.x = frame_index * sprite_size
+        src_rect.y = facing * sprite_size
+        src_rect.w = sprite_size
+        src_rect.h = sprite_size
+
+        dest_rect = SDL_Rect()
+
+        dest_rect.x = 512 - sprite_size
+        dest_rect.y = 384 - sprite_size
+        dest_rect.w = sprite_size
+        dest_rect.h = sprite_size
+
+        render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+
+    def load_image(self, file_path, motion_type):
+        sprite_sheets = self.sprite_sheets.get(file_path)
+        if not sprite_sheets:
+            sprite_surface = self.factory.from_image(file_path)
+            self.sprite_sheets[motion_type] = sprite_surface
