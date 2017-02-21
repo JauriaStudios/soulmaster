@@ -3,6 +3,8 @@
 from sdl2 import *
 import sdl2.ext
 
+from const import WindowSize
+
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
 
@@ -91,8 +93,8 @@ class Player:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = 512 - sprite_size
-        dest_rect.y = 384 - sprite_size
+        dest_rect.x = int((WindowSize.WIDTH / 2) - sprite_size)
+        dest_rect.y = int((WindowSize.HEIGHT / 2) - sprite_size)
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 

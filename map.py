@@ -13,6 +13,8 @@ import sdl2.ext
 from pytmx import *
 from pytmx.util_pysdl2 import load_pysdl2
 
+from const import WindowSize
+
 
 class TiledRenderer(object):
     def __init__(self, filename, renderer):
@@ -32,9 +34,10 @@ class TiledRenderer(object):
         for k, v in self.tmx_data.tile_properties.items():
             logger.info("{0}\t{1}".format(k, v))
 
-    def render_tile_layer(self, layer, size):
+    def render_tile_layer(self, layer):
         # deref these heavily used references for speed
-        window_x, window_y = size
+        window_x = WindowSize.WIDTH
+        window_y = WindowSize.HEIGHT
         tw = self.tmx_data.tilewidth
         th = self.tmx_data.tileheight
         renderer = self.renderer.renderer
@@ -49,11 +52,11 @@ class TiledRenderer(object):
             angle = 90 if (flip & 4) else 0
             rce(renderer, texture, src, dest, angle, None, flip)
 
-    def render_map(self, size):
+    def render_map(self):
         for layer in self.tmx_data.visible_layers:
             # draw map tile layers
             if isinstance(layer, TiledTileLayer):
-                self.render_tile_layer(layer, size)
+                self.render_tile_layer(layer)
 
     def update(self, position):
         self.pos = position

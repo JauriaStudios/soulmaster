@@ -13,6 +13,7 @@ from sdl2 import *
 import sdl2.ext
 import sdl2.sdlttf
 
+from const import WindowSize
 from input import Input
 from map import TiledRenderer
 from player import Player, Facing, MotionType
@@ -49,8 +50,10 @@ class Game(object):
 
     def draw(self):
         self.sdl_renderer.clear()
-        self.map_renderer.render_map(self.window_size)
+
+        self.map_renderer.render_map()
         self.player.draw()
+
         self.sdl_renderer.present()
 
     def map_update(self, pos, elapsed_time):
@@ -153,7 +156,7 @@ class Game(object):
 
 def main():
 
-    screen_size = (1024, 768)
+    screen_size = (WindowSize.WIDTH, WindowSize.HEIGHT)
 
     window = sdl2.ext.Window("Soul Master", size=screen_size)
     window.renderer = sdl2.ext.Renderer(window)
