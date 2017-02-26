@@ -30,7 +30,7 @@ class Player:
     def __init__(self, renderer):
         self.renderer = renderer
 
-        self.sprite_size = 64
+        self.sprite_size = 128
 
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
@@ -68,7 +68,7 @@ class Player:
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
 
-        if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / 64):
+        if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / self.sprite_size):
             self.frame_index = 0
 
         self.last_facing = self.facing
@@ -93,8 +93,8 @@ class Player:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int((WindowSize.WIDTH / 2) - sprite_size)
-        dest_rect.y = int((WindowSize.HEIGHT / 2) - sprite_size)
+        dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2))
+        dest_rect.y = int((WindowSize.HEIGHT / 2) - (sprite_size / 2))
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
