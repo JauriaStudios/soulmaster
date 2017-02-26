@@ -17,6 +17,7 @@ from const import WindowSize
 from input import Input
 from map import TiledRenderer
 from player import Player, Facing, MotionType
+from enemy import Enemy
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
@@ -41,7 +42,9 @@ class Game(object):
         self.sdl_renderer = window.renderer
 
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
+
         self.player = Player(self.sdl_renderer)
+        self.doombat = Enemy(self.sdl_renderer, "doombat")
 
     def __del__(self):
 
