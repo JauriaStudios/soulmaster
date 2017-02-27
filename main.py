@@ -27,6 +27,7 @@ logger.setLevel(logging.INFO)
 
 FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
+
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
 
