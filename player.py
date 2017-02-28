@@ -18,7 +18,8 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 class MotionType:
     STANDING = 0
     WALKING = 1
-    COUNT = 2
+    PRECAST = 2
+    COUNT = 3
 
 
 class Facing:
@@ -41,7 +42,8 @@ class Player:
 
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
-            RESOURCES.get_path("player_walking.png")
+            RESOURCES.get_path("player_walking.png"),
+            RESOURCES.get_path("player_precast.png")
         ]
 
         self.factory = sdl2.ext.SpriteFactory(
@@ -63,14 +65,24 @@ class Player:
     def init_sprite_sheet(self):
 
         for motion_type in range(MotionType.COUNT):
-
             self.load_image(self.player_sprites[motion_type], motion_type)
 
+    def load_image(self, file_path, motion_type):
+        sprite_sheets = self.sprite_sheets.get(file_path)
+        if not sprite_sheets:
+            sprite_surface = self.factory.from_image(file_path)
+            self.sprite_sheets[motion_type] = sprite_surface
+
     def update(self, motion_type, facing, elapsed_time):
+
         self.motion_type = motion_type
         self.facing = facing
 
-        self.frame_index += 1
+        print(self.frame_index)
+        if (self.motion_type == MotionType.PRECAST) and (self.frame_index >= 29):
+            pass
+        else:
+            self.frame_index += 1
 
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
@@ -107,8 +119,3 @@ class Player:
 
         render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
-    def load_image(self, file_path, motion_type):
-        sprite_sheets = self.sprite_sheets.get(file_path)
-        if not sprite_sheets:
-            sprite_surface = self.factory.from_image(file_path)
-            self.sprite_sheets[motion_type] = sprite_surface
