@@ -61,6 +61,8 @@ class Player:
 
         self.frame_index = 0
 
+        self.position = [0, 0]
+
         self.init_sprite_sheet()
 
     def init_sprite_sheet(self):
