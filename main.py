@@ -96,6 +96,7 @@ class Game(object):
                     running = False
                     break
 
+            # Exit
             if game_input.was_key_pressed(SDLK_ESCAPE):
                 running = False
 
@@ -136,6 +137,12 @@ class Game(object):
                 player_pos[1] -= speed_y
                 motion_type = MotionType.WALKING
                 facing = Facing.DOWN
+
+            # Player Attack
+            elif game_input.is_key_held(SDLK_SPACE):
+                motion_type = MotionType.PRECAST
+
+            # Nothing
             else:
                 motion_type = MotionType.STANDING
 
