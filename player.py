@@ -78,7 +78,6 @@ class Player:
         self.motion_type = motion_type
         self.facing = facing
 
-        print(self.frame_index)
         if (self.motion_type == MotionType.PRECAST) and (self.frame_index >= 29):
             pass
         else:
