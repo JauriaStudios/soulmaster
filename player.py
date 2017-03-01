@@ -50,7 +50,6 @@ class Player:
             sdl2.ext.TEXTURE, renderer=self.renderer)
 
         self.sprite_sheets = {}
-        self.sprites = {}
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing

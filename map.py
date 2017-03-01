@@ -58,6 +58,6 @@ class TiledRenderer(object):
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(layer)
 
-    def update(self, position):
+    def update(self, position, elapsed_time):
         self.pos = position
 

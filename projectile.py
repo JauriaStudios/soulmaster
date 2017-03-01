@@ -14,6 +14,7 @@ from const import WindowSize
 
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
+
 class Facing:
     LEFT_DOWN = 0
     DOWN = 1
@@ -37,24 +38,12 @@ class Projectile:
         self.factory = sdl2.ext.SpriteFactory(
             sdl2.ext.TEXTURE, renderer=self.renderer)
 
-        self.sprite_sheet = {}
-        self.sprites = {}
+        self.sprite_sheet = self.factory.from_image(self.projectile_sprites)
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
 
         self.frame_index = 0
-
-        self.init_sprite_sheet()
-
-    def init_sprite_sheet(self):
-        self.load_image(self.projectile_sprites)
-
-    def load_image(self, file_path):
-        sprite_sheet = self.sprite_sheet.get(file_path)
-        if not sprite_sheet:
-            sprite_surface = self.factory.from_image(file_path)
-            self.sprite_sheet = sprite_surface
 
     def update(self, facing, elapsed_time):
 
