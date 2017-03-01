@@ -77,14 +77,6 @@ class Game(object):
         elif (pos[1] > 20) and (self.enemy_layer == 1):
             self.entities.append(self.entities.pop(0))
             self.enemy_layer = 0
-        """
-        if pos[1] > (WindowSize.HEIGHT/2) and (self.player_layer == 0):
-            self.entities.append(self.entities.pop(0))
-            self.player_layer = 1
-        elif pos[1] < (WindowSize.HEIGHT/2) and (self.player_layer == 1):
-            self.entities.append(self.entities.pop(0))
-            self.player_layer = 0
-        """
 
     def draw(self):
         self.sdl_renderer.clear()
