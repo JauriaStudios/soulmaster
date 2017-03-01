@@ -127,8 +127,6 @@ class Enemy:
             else:
                 self.moving = False
 
-
-
     def draw(self):
         renderer = self.renderer.renderer
         motion_type = self.motion_type
