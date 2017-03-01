@@ -45,21 +45,22 @@ class Game(object):
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
-        self.doombat = Enemy(self.sdl_renderer, "player")
+        self.doombat = Enemy(self.sdl_renderer, "doombat")
+
+        self.entities = [
+            self.player,
+            self.doombat
+        ]
+
+        self.player_layer = 0
+        self.enemy_layer = 0
 
     def __del__(self):
-
         sdl2.sdlttf.TTF_Quit()
         SDL_Quit()
 
-    def draw(self):
-        self.sdl_renderer.clear()
-
-        self.map_renderer.render_map()
-        self.player.draw()
-        self.doombat.draw()
-
-        self.sdl_renderer.present()
+    def update(self, position, elapsed_time):
+        pass
 
     def map_update(self, pos, elapsed_time):
         self.map_renderer.update(pos, elapsed_time)
@@ -69,6 +70,31 @@ class Game(object):
 
     def enemy_update(self, pos, elapsed_time):
         self.doombat.update(pos, elapsed_time)
+
+        if (pos[1] < 20) and (self.enemy_layer == 0):
+            self.entities.append(self.entities.pop(0))
+            self.enemy_layer = 1
+        elif (pos[1] > 20) and (self.enemy_layer == 1):
+            self.entities.append(self.entities.pop(0))
+            self.enemy_layer = 0
+        """
+        if pos[1] > (WindowSize.HEIGHT/2) and (self.player_layer == 0):
+            self.entities.append(self.entities.pop(0))
+            self.player_layer = 1
+        elif pos[1] < (WindowSize.HEIGHT/2) and (self.player_layer == 1):
+            self.entities.append(self.entities.pop(0))
+            self.player_layer = 0
+        """
+
+    def draw(self):
+        self.sdl_renderer.clear()
+
+        self.map_renderer.render_map()
+
+        for entity in self.entities:
+            entity.draw()
+
+        self.sdl_renderer.present()
 
     def run(self, window):
 
@@ -153,10 +179,10 @@ class Game(object):
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
+            self.update(player_pos, min(elapsed_time, MAX_FRAME_TIME));
+
             self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
-
             self.player_update(motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
-
             self.enemy_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
