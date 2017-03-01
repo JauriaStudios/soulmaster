@@ -18,7 +18,7 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 class MotionType:
     STANDING = 0
     WALKING = 1
-    COUNT = 2
+    COUNT = 1
 
 
 class Facing:
@@ -42,7 +42,7 @@ class Enemy:
 
         self.enemy_sprites = [
             RESOURCES.get_path("{0}_standing.png".format(name)),
-            RESOURCES.get_path("{0}_walking.png".format(name))
+            # RESOURCES.get_path("{0}_walking.png".format(name))
         ]
 
         self.factory = sdl2.ext.SpriteFactory(
