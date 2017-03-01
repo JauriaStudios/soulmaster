@@ -45,7 +45,7 @@ class Game(object):
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
-        # self.doombat = Enemy(self.sdl_renderer, "doombat")
+        self.doombat = Enemy(self.sdl_renderer, "player")
 
     def __del__(self):
 
@@ -57,14 +57,18 @@ class Game(object):
 
         self.map_renderer.render_map()
         self.player.draw()
+        self.doombat.draw()
 
         self.sdl_renderer.present()
 
     def map_update(self, pos, elapsed_time):
-        self.map_renderer.update(pos)
+        self.map_renderer.update(pos, elapsed_time)
 
     def player_update(self, motion_type, facing, elapsed_time):
         self.player.update(motion_type, facing, elapsed_time)
+
+    def enemy_update(self, pos, elapsed_time):
+        self.doombat.update(pos, elapsed_time)
 
     def run(self, window):
 
@@ -152,6 +156,8 @@ class Game(object):
             self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
             self.player_update(motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
+
+            self.enemy_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 

@@ -15,13 +15,6 @@ from const import WindowSize
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
 
-class MotionType:
-    STANDING = 0
-    WALKING = 1
-    PRECAST = 2
-    COUNT = 3
-
-
 class Facing:
     LEFT_DOWN = 0
     DOWN = 1
@@ -34,71 +27,45 @@ class Facing:
     COUNT = 8
 
 
-class Player:
+class Projectile:
     def __init__(self, renderer):
         self.renderer = renderer
 
-        self.sprite_size = 128
+        self.sprite_size = 64
 
-        self.player_sprites = [
-            RESOURCES.get_path("player_standing.png"),
-            RESOURCES.get_path("player_walking.png"),
-            RESOURCES.get_path("player_precast.png")
-        ]
+        self.projectile_sprites = RESOURCES.get_path("player_standing.png")
 
         self.factory = sdl2.ext.SpriteFactory(
             sdl2.ext.TEXTURE, renderer=self.renderer)
 
-        self.sprite_sheets = {}
+        self.sprite_sheet = self.factory.from_image(self.projectile_sprites)
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
 
-        self.motion_type = MotionType.STANDING
-        self.last_motion_type = self.motion_type
-
         self.frame_index = 0
 
-        self.init_sprite_sheet()
+    def update(self, facing, elapsed_time):
 
-    def init_sprite_sheet(self):
-
-        for motion_type in range(MotionType.COUNT):
-            self.load_image(self.player_sprites[motion_type], motion_type)
-
-    def load_image(self, file_path, motion_type):
-        sprite_sheets = self.sprite_sheets.get(file_path)
-        if not sprite_sheets:
-            sprite_surface = self.factory.from_image(file_path)
-            self.sprite_sheets[motion_type] = sprite_surface
-
-    def update(self, motion_type, facing, elapsed_time):
-
-        self.motion_type = motion_type
         self.facing = facing
 
-        if (self.motion_type == MotionType.PRECAST) and (self.frame_index >= 29):
-            pass
-        else:
-            self.frame_index += 1
+        self.frame_index += 1
 
-        if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
+        if self.facing != self.last_facing:
             self.frame_index = 0
 
-        if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / self.sprite_size):
+        if self.frame_index == (self.sprite_sheet.size[0] / self.sprite_size):
             self.frame_index = 0
 
         self.last_facing = self.facing
-        self.last_motion_type = self.motion_type
 
     def draw(self):
 
         renderer = self.renderer.renderer
-        motion_type = self.motion_type
         facing = self.facing
         frame_index = self.frame_index
 
-        sprite = self.sprite_sheets[motion_type]
+        sprite = self.sprite_sheet
         sprite_size = self.sprite_size
 
         src_rect = SDL_Rect()
