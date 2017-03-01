@@ -36,7 +36,9 @@ class Projectile:
         self.projectile_sprites = RESOURCES.get_path("player_standing.png")
 
         self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE, renderer=self.renderer)
+            sdl2.ext.TEXTURE,
+            renderer=self.renderer
+        )
 
         self.sprite_sheet = self.factory.from_image(self.projectile_sprites)
 

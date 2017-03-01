@@ -46,7 +46,9 @@ class Enemy:
         ]
 
         self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE, renderer=self.renderer)
+            sdl2.ext.TEXTURE,
+            renderer=self.renderer
+        )
 
         self.sprite_sheets = {}
 
