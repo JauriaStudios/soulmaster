@@ -8,5 +8,5 @@ class WindowSize:
 
 
 class Colors:
-    WHIHE = pixels.SDL_Color(255, 255, 255)
-    BLACK = pixels.SDL_Color(255, 255, 255)
+    WHITHE = pixels.SDL_Color(255, 255, 255)
+    BLACK = pixels.SDL_Color(0, 0, 0)
