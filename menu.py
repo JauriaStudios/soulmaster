@@ -70,12 +70,12 @@ class Menu:
                     menu_input.key_up_event(event)
 
                 elif event.type == SDL_QUIT:
-                    running = False
+                    self.running = False
                     break
 
             # Exit
             if menu_input.was_key_pressed(SDLK_ESCAPE):
-                running = False
+                self.running = False
 
             # Move the cursor
             elif menu_input.was_key_pressed(SDLK_UP):
@@ -91,7 +91,6 @@ class Menu:
                     self.launch_debug()
                 else:
                     self.running = False
-
 
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
