@@ -35,6 +35,8 @@ class Menu:
             renderer=self.renderer
         )
 
+        self.running = True
+
         self.cursor_position = [0, 0]
         self.cursor_sprite_size = 64
 
@@ -52,10 +54,9 @@ class Menu:
 
         menu_input = Input()
 
-        running = True
         last_update_time = SDL_GetTicks()  # units.MS
 
-        while running:
+        while self.running:
             start_time = SDL_GetTicks()  # units.MS
 
             menu_input.begin_new_frame()
@@ -76,12 +77,21 @@ class Menu:
             if menu_input.was_key_pressed(SDLK_ESCAPE):
                 running = False
 
+            # Move the cursor
             elif menu_input.was_key_pressed(SDLK_UP):
                 if self.cursor_position[1] != 0:
                     self.cursor_position[1] -= 1
             elif menu_input.was_key_pressed(SDLK_DOWN):
                 if self.cursor_position[1] != 2:
                     self.cursor_position[1] += 1
+
+            # Select option
+            elif menu_input.was_key_pressed(SDLK_RETURN):
+                if self.cursor_position[1] == 0:
+                    self.launch_debug()
+                else:
+                    self.running = False
+
 
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
@@ -134,3 +144,7 @@ class Menu:
         render.SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
 
         self.renderer.present()
+
+    def launch_debug(self):
+        game = Game(self.window)
+        game.run()

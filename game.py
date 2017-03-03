@@ -28,13 +28,13 @@ FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
-MAPS = sdl2.ext.Resources(__file__, 'resources')
+MAPS = sdl2.ext.Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
     def __init__(self, window):
 
-        map_file = RESOURCES.get_path(os.path.join("maps", "map.tmx"))
+        map_file = MAPS.get_path("map.tmx")
 
         self.running = False
         self.window = window
@@ -86,7 +86,9 @@ class Game(object):
 
         self.sdl_renderer.present()
 
-    def run(self, window):
+    def run(self):
+
+        window = self.window
 
         game_input = Input()
 
