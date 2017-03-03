@@ -12,11 +12,12 @@ from sdl2 import *
 from sdl2.sdlttf import *
 import sdl2.ext
 
+
 FONTS = sdl2.ext.Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog(object):
-    def __init__(self, window, text_color, text_size, dialog_color, dialog_size):
+    def __init__(self, window, text_color, text_size, text_position, dialog_color, dialog_size):
         TTF_Init()
 
         self.window = window
@@ -25,53 +26,49 @@ class Dialog(object):
 
         self.text_color = text_color
         self.text_size = text_size
+        self.text_position = text_position
         self.dialog_color = dialog_color
         self.dialog_size = dialog_size
 
-        self.font_path = FONTS.get_path("Glametrix.otf")
+        self.font_path = FONTS.get_path("04B_20__.TTF")
 
-        self.image = []
+        self.image = None
 
     def __del__(self):
         TTF_Quit()
 
-    def render_texture(self, texture, renderer, position, size):
-
-        dest = SDL_Rect()
-        dest.x = position[0]
-        dest.y = position[1]
-        dest.w = size[0]
-        dest.h = size[1]
-
-        SDL_RenderCopy(renderer, texture, None, dest)
-
-    def render_text(self, line, message, font_file, font_color, font_size, renderer):
+    def render_text(self, message, font_file, font_color, font_size):
         SDL_ClearError()
-        font = TTF_OpenFont(font_file, font_size)
-        p = SDL_GetError()
-        if font is None or not p == '':
-            print("TTF_OpenFont error: " + p)
+        font = TTF_OpenFont(font_file.encode("UTF-8"), font_size)
+
+        if font is None:
             return None
 
-        #We need to first render to a surface as that's what TTF_RenderText
-        #returns, then load that surface into a texture
-        surf = TTF_RenderText_Blended(font, message, font_color)
+        surf = TTF_RenderText_Blended(font, message.encode("UTF-8"), font_color)
 
         if surf is None:
             TTF_CloseFont(font)
-            print("TTF_RenderText")
             return None
 
-        texture = SDL_CreateTextureFromSurface(renderer, surf)
+        texture = SDL_CreateTextureFromSurface(self.sdl_renderer.renderer, surf)
         if texture is None:
-            print("CreateTexture")
-
-        #Clean up the surface and font
+            return None
 
         SDL_FreeSurface(surf)
         TTF_CloseFont(font)
         return texture
 
     def draw(self, messages):
-        for k, text in messages.items():
-            self.image.append(self.render_text(k, text, self.font_path, self.text_color, self.text_size, self.sdl_renderer))
+        for index, text in messages.items():
+            self.image = self.render_text(
+                            text,
+                            self.font_path,
+                            self.text_color,
+                            self.text_size
+                        )
+
+            dest = SDL_Rect(self.text_position[0], (self.text_position[1] +(64 * index)))
+            dest.w = 300
+            dest.h = 32
+
+            SDL_RenderCopy(self.sdl_renderer.renderer, self.image, None, dest)

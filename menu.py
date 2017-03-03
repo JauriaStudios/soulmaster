@@ -11,7 +11,7 @@ from sdl2 import *
 import sdl2.ext
 import sdl2.sdlttf
 
-from const import WindowSize
+from const import WindowSize, Colors
 from input import Input
 from ui import Dialog
 from game import Game
@@ -41,7 +41,8 @@ class Menu:
         self.menu_bg_sprite = self.factory.from_image(self.menu_bg)
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
 
-        self.menu_dialog = Dialog(self.window, (0, 0, 0, 0), 32, (255, 255, 255, 0), (128, 72))
+        self.menu_text = {1: "DEBUG ROOM", 2: "OPTIONS", 3: "EXIT"}
+        self.menu_dialog = Dialog(self.window, Colors.BLACK, 32, (250, 150), Colors.BLACK, (128, 72))
 
 
     def update(self, elapsed_time):
@@ -101,12 +102,8 @@ class Menu:
     def draw(self):
 
         renderer = self.sdl_renderer
-        self.renderer.clear()
 
-        self.menu_dialog.draw({1: "DEBUG ROOM",
-                               2: "OPTIONS",
-                               3: "EXIT"
-                               })
+        menu_text = self.menu_text
 
         cursor_position = self.cursor_position
         cursor_size = self.cursor_sprite_size
@@ -123,12 +120,17 @@ class Menu:
 
         cursor_dest_rect = SDL_Rect()
 
-        cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 120) - (cursor_size / 2))
+        cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 200) - (cursor_size / 2))
         cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 60) - (cursor_size / 2)) + (cursor_position[1] * 60)
         cursor_dest_rect.w = cursor_size
         cursor_dest_rect.h = cursor_size
 
+        self.renderer.clear()
+
         render.SDL_RenderCopy(renderer, menu_bg.texture, None, bg_dest_rect)
+
+        self.menu_dialog.draw(menu_text)
+
         render.SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
 
         self.renderer.present()
