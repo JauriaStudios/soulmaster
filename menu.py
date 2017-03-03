@@ -71,10 +71,17 @@ class Menu:
             if menu_input.was_key_pressed(SDLK_ESCAPE):
                 running = False
 
+            elif menu_input.was_key_pressed(SDLK_UP):
+                if self.cursor_position[1] != 0:
+                    self.cursor_position[1] -= 1
+            elif menu_input.was_key_pressed(SDLK_DOWN):
+                if self.cursor_position[1] != 2:
+                    self.cursor_position[1] += 1
+
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            self.update(min(elapsed_time, MAX_FRAME_TIME));
+            self.update(min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 
@@ -92,6 +99,7 @@ class Menu:
         renderer = self.sdl_renderer
         self.renderer.clear()
 
+        cursor_position = self.cursor_position
         cursor_size = self.cursor_sprite_size
 
         menu_bg = self.menu_bg_sprite
@@ -120,8 +128,8 @@ class Menu:
 
         cursor_dest_rect = SDL_Rect()
 
-        cursor_dest_rect.x = int((WindowSize.WIDTH / 2) - (cursor_size / 2))
-        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2) - (cursor_size / 2))
+        cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 120) - (cursor_size / 2))
+        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 60) - (cursor_size / 2)) + (cursor_position[1] * 60)
         cursor_dest_rect.w = cursor_size
         cursor_dest_rect.h = cursor_size
 
