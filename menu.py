@@ -13,6 +13,7 @@ import sdl2.sdlttf
 
 from const import WindowSize
 from input import Input
+from ui import Dialog
 from game import Game
 
 FPS = 60  # units.FPS
@@ -39,6 +40,9 @@ class Menu:
 
         self.menu_bg_sprite = self.factory.from_image(self.menu_bg)
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
+
+        self.menu_dialog = Dialog(self.window, (0, 0, 0, 0), 32, (255, 255, 255, 0), (128, 72))
+
 
     def update(self, elapsed_time):
         pass
@@ -99,18 +103,16 @@ class Menu:
         renderer = self.sdl_renderer
         self.renderer.clear()
 
+        self.menu_dialog.draw({1: "DEBUG ROOM",
+                               2: "OPTIONS",
+                               3: "EXIT"
+                               })
+
         cursor_position = self.cursor_position
         cursor_size = self.cursor_sprite_size
 
         menu_bg = self.menu_bg_sprite
         menu_cursor = self.menu_cursor_sprite
-
-        bg_src_rect = SDL_Rect()
-
-        bg_src_rect.x = 0
-        bg_src_rect.y = 0
-        bg_src_rect.w = menu_bg.size[0]
-        bg_src_rect.h = menu_bg.size[1]
 
         bg_dest_rect = SDL_Rect()
 
@@ -119,13 +121,6 @@ class Menu:
         bg_dest_rect.w = WindowSize.WIDTH
         bg_dest_rect.h = WindowSize.HEIGHT
 
-        cursor_src_rect = SDL_Rect()
-
-        cursor_src_rect.x = 0
-        cursor_src_rect.y = 0
-        cursor_src_rect.w = cursor_size
-        cursor_src_rect.h = cursor_size
-
         cursor_dest_rect = SDL_Rect()
 
         cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 120) - (cursor_size / 2))
@@ -133,7 +128,7 @@ class Menu:
         cursor_dest_rect.w = cursor_size
         cursor_dest_rect.h = cursor_size
 
-        render.SDL_RenderCopy(renderer, menu_bg.texture, bg_src_rect, bg_dest_rect)
-        render.SDL_RenderCopy(renderer, menu_cursor.texture, cursor_src_rect, cursor_dest_rect)
+        render.SDL_RenderCopy(renderer, menu_bg.texture, None, bg_dest_rect)
+        render.SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
 
         self.renderer.present()
