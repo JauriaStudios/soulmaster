@@ -46,7 +46,6 @@ class Menu:
         self.menu_text = {1: "DEBUG ROOM", 2: "OPTIONS", 3: "EXIT"}
         self.menu_dialog = Dialog(self.window, Colors.WHITHE, 32, (250, 150), Colors.BLACK, (128, 72))
 
-
     def update(self, elapsed_time):
         pass
 
