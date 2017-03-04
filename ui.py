@@ -12,7 +12,10 @@ from sdl2 import *
 from sdl2.sdlttf import *
 import sdl2.ext
 
+from const import Colors, WindowSize
 
+
+RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 FONTS = sdl2.ext.Resources(__file__, 'resources', 'fonts')
 
 
@@ -33,6 +36,15 @@ class Dialog(object):
         self.font_path = FONTS.get_path("04B_20__.TTF")
 
         self.image = None
+
+        self.factory = sdl2.ext.SpriteFactory(
+            sdl2.ext.TEXTURE,
+            renderer=self.sdl_renderer
+        )
+
+        border_image_path = RESOURCES.get_path("dialog_border.png")
+        self.border = self.factory.from_image(border_image_path)
+        self.bg = self.factory.from_color(Colors.BLACK, size=(self.dialog_size[0], self.dialog_size[1]))
 
     def __del__(self):
         TTF_Quit()
@@ -59,6 +71,62 @@ class Dialog(object):
         return texture
 
     def draw(self, messages):
+
+        width = self.dialog_size[0]
+        height = self.dialog_size[1]
+        x = self.text_position[0]
+        y = self.text_position[1]
+        renderer = self.sdl_renderer.renderer
+
+        bg_dest = SDL_Rect(x - 16,
+                           y - 16,
+                           width + 32,
+                           height * len(messages.items()) + 32)
+
+        SDL_RenderCopy(renderer, self.bg.texture, None, bg_dest)
+
+        border_src = SDL_Rect(0, 0, 16, 16)
+
+        border_dest = SDL_Rect(0, 0, 16, 16)
+
+        cols = int(width / 16) + 3
+        rows = int(height / 16) * len(messages.items()) + 3
+
+        for i in range(cols + 1):
+            for j in range(rows + 1):
+                if (i == 0) and (j == 0):
+                    border_src.x = 0
+                    border_src.y = 0
+                elif (i < cols) and (j == 0):
+                    border_src.x = 16
+                    border_src.y = 0
+                elif (i == cols) and (j == 0):
+                    border_src.x = 32
+                    border_src.y = 0
+                elif (i == cols) and (j < rows):
+                    border_src.x = 32
+                    border_src.y = 16
+                elif (i == 0) and (j < rows):
+                    border_src.x = 0
+                    border_src.y = 16
+                elif (i == 0) and (j == rows):
+                    border_src.x = 0
+                    border_src.y = 32
+                elif (i < cols) and (j == rows):
+                    border_src.x = 16
+                    border_src.y = 32
+                elif (i == cols) and (j == rows):
+                    border_src.x = 32
+                    border_src.y = 32
+                else:
+                    border_src.x = 16
+                    border_src.y = 16
+
+                border_dest.x = (16 * i) + (x - 32)
+                border_dest.y = (16 * j) + (y - 32)
+
+                SDL_RenderCopy(renderer, self.border.texture, border_src, border_dest)
+
         for index, text in messages.items():
             self.image = self.render_text(
                             text,
@@ -67,8 +135,8 @@ class Dialog(object):
                             self.text_size
                         )
 
-            dest = SDL_Rect(self.text_position[0], (self.text_position[1] +(64 * index)))
-            dest.w = 300
-            dest.h = 32
+            text_dest = SDL_Rect(x, (y + (64 * index)))
+            text_dest.w = width
+            text_dest.h = height
 
-            SDL_RenderCopy(self.sdl_renderer.renderer, self.image, None, dest)
+            SDL_RenderCopy(renderer, self.image, None, text_dest)
