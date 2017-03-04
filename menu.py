@@ -86,10 +86,9 @@ class Menu:
 
             # Select option
             elif menu_input.was_key_pressed(SDLK_RETURN):
+                self.running = False
                 if self.cursor_position[1] == 0:
                     self.launch_debug()
-                else:
-                    self.running = False
 
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
@@ -146,3 +145,6 @@ class Menu:
     def launch_debug(self):
         game = Game(self.window)
         game.run()
+
+        self.running = True
+        self.run()
