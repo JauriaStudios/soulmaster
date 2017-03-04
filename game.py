@@ -43,6 +43,7 @@ class Game(object):
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
+        self.edelbert = NPC(self.sdl_renderer)
         self.doombat = Enemy(self.sdl_renderer, "doombat")
 
         self.entities = [
