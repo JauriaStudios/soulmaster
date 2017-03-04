@@ -15,6 +15,7 @@ from const import WindowSize
 from input import Input
 from map import TiledRenderer
 from player import Player, Facing, MotionType
+from npc import NPC
 from enemy import Enemy
 
 logger = logging.getLogger(__name__)
@@ -43,10 +44,12 @@ class Game(object):
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
+        self.edelbert = NPC(self.sdl_renderer, "player")
         self.doombat = Enemy(self.sdl_renderer, "doombat")
 
         self.entities = [
             self.player,
+            self.edelbert,
             self.doombat
         ]
 
@@ -57,7 +60,7 @@ class Game(object):
         SDL_Quit()
 
     def update(self, position, elapsed_time):
-        pass
+        self.edelbert.update(position, elapsed_time)
 
     def map_update(self, pos, elapsed_time):
         self.map_renderer.update(pos, elapsed_time)
