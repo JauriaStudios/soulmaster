@@ -2,6 +2,7 @@
 
 import sys
 import os
+
 from random import randint
 
 # If we're on Windows, use the included compiled DLLs.

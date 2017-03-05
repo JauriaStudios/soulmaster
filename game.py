@@ -13,6 +13,7 @@ import sdl2.ext
 
 from const import WindowSize
 from input import Input
+from db import DataBase
 from map import TiledRenderer
 from player import Player, Facing, MotionType
 from npc import NPC
@@ -34,6 +35,8 @@ MAPS = sdl2.ext.Resources(__file__, 'resources', 'maps')
 class Game(object):
     def __init__(self, window):
 
+        self.db = DataBase()
+
         map_file = MAPS.get_path("map.tmx")
 
         self.running = False
@@ -44,12 +47,14 @@ class Game(object):
         self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
-        self.edelbert = NPC(self.sdl_renderer, "player")
+
+        self.all_npc = []
+        self.init_npc("debug_room")
+
         self.doombat = Enemy(self.sdl_renderer, "doombat")
 
         self.entities = [
             self.player,
-            self.edelbert,
             self.doombat
         ]
 
@@ -59,8 +64,17 @@ class Game(object):
     def __del__(self):
         SDL_Quit()
 
+    def init_npc(self, map):
+
+        all_npc_names = self.db.get_all_npc()
+
+        for data in all_npc_names.items():
+            npc = NPC(self.sdl_renderer, data)
+            self.all_npc.append(npc)
+
     def update(self, position, elapsed_time):
-        self.edelbert.update(position, elapsed_time)
+        for npc in self.all_npc:
+            npc.update(position, elapsed_time)
 
     def map_update(self, pos, elapsed_time):
         self.map_renderer.update(pos, elapsed_time)
