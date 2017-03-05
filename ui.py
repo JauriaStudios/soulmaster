@@ -135,7 +135,7 @@ class Dialog(object):
                             self.text_size
                         )
 
-            text_dest = SDL_Rect(x, (y + (64 * index)))
+            text_dest = SDL_Rect(x, (y + ((self.text_size * 2) * index)))
             text_dest.w = width
             text_dest.h = height
 
