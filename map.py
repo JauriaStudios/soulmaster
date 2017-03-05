@@ -89,7 +89,6 @@ class TiledRenderer(object):
                 if dest.y >= (window_y / 2) - 72:
                     rce(renderer, texture, src, dest, angle, None, flip)
 
-
     def render_map(self, level):
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, TiledTileLayer):
