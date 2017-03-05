@@ -81,10 +81,13 @@ class Game(object):
     def draw(self):
         self.sdl_renderer.clear()
 
-        self.map_renderer.render_map()
+        self.map_renderer.render_map("back")
+        self.map_renderer.render_map("up")
 
         for entity in self.entities:
             entity.draw()
+
+        self.map_renderer.render_map("down")
 
         self.sdl_renderer.present()
 
