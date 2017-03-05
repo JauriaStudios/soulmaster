@@ -68,7 +68,7 @@ class Game(object):
 
         all_npc_names = self.db.get_all_npc()
 
-        for data in all_npc_names.items():
+        for data in all_npc_names:
             npc = NPC(self.sdl_renderer, data)
             self.all_npc.append(npc)
 
@@ -85,21 +85,18 @@ class Game(object):
     def enemy_update(self, pos, elapsed_time):
         self.doombat.update(pos, elapsed_time)
 
-        if (pos[1] < 20) and (self.enemy_layer == 0):
-            self.entities.append(self.entities.pop(0))
-            self.enemy_layer = 1
-        elif (pos[1] > 20) and (self.enemy_layer == 1):
-            self.entities.append(self.entities.pop(0))
-            self.enemy_layer = 0
-
     def draw(self):
         self.sdl_renderer.clear()
 
         self.map_renderer.render_map("back")
         self.map_renderer.render_map("up")
 
-        for entity in self.entities:
-            entity.draw()
+        self.player.draw()
+
+        for npc in self.all_npc:
+            npc.draw()
+
+        self.doombat.draw()
 
         self.map_renderer.render_map("down")
 

@@ -36,9 +36,12 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, renderer, name):
+    def __init__(self, renderer, data):
         self.renderer = renderer
 
+        self.name = data["name"]
+        self.level = data["level"]
+        self.quest = data["quest"]
         self.sprite_size = 128
         self.position = [0, 0]
         self.movement = [0, 0]
@@ -46,7 +49,7 @@ class NPC:
         self.moving = False
 
         self.npc_sprites = [
-            RESOURCES.get_path("{0}_standing.png".format(name)),
+            RESOURCES.get_path("{0}_standing.png".format(self.name)),
             # RESOURCES.get_path("{0}_walking.png".format(name))
         ]
 
