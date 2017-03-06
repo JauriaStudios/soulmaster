@@ -22,7 +22,7 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 class MotionType:
     STANDING = 0
     WALKING = 1
-    COUNT = 1
+    COUNT = 2
 
 
 class Facing:
