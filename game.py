@@ -69,7 +69,7 @@ class Game(object):
         all_npc_names = self.db.get_all_npc()
 
         for data in all_npc_names:
-            npc = NPC(self.sdl_renderer, data)
+            npc = NPC(self.window, data)
             self.all_npc.append(npc)
 
     def update(self, position, elapsed_time):

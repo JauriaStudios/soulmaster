@@ -20,7 +20,7 @@ FONTS = sdl2.ext.Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog(object):
-    def __init__(self, window, text_color, text_size, text_position, dialog_color, dialog_size):
+    def __init__(self, window, text_color, text_size, text_position, dialog_color):
         TTF_Init()
 
         self.window = window
@@ -31,7 +31,6 @@ class Dialog(object):
         self.text_size = text_size
         self.text_position = text_position
         self.dialog_color = dialog_color
-        self.dialog_size = dialog_size
 
         self.font_path = FONTS.get_path("04B_20__.TTF")
 
@@ -44,7 +43,7 @@ class Dialog(object):
 
         border_image_path = RESOURCES.get_path("dialog_border.png")
         self.border = self.factory.from_image(border_image_path)
-        self.bg = self.factory.from_color(Colors.BLACK, size=(self.dialog_size[0], self.dialog_size[1]))
+        self.bg = None
 
     def __del__(self):
         TTF_Quit()
@@ -72,11 +71,21 @@ class Dialog(object):
 
     def draw(self, messages):
 
-        width = self.dialog_size[0]
-        height = self.dialog_size[1]
+        chars = []
+        for index, text in messages.items():
+            i = 0
+            for char in text:
+                i += 1
+            chars.append(i)
+
+        width = (self.text_size * max(chars))
+        height = self.text_size
         x = self.text_position[0]
         y = self.text_position[1]
+
         renderer = self.sdl_renderer.renderer
+
+        self.bg = self.factory.from_color(Colors.BLACK, size=(width, height))
 
         bg_dest = SDL_Rect(x - 16,
                            y - 16,
@@ -135,8 +144,8 @@ class Dialog(object):
                             self.text_size
                         )
 
-            text_dest = SDL_Rect(x, (y + (64 * index)))
-            text_dest.w = width
+            text_dest = SDL_Rect(x, (y + (self.text_size * index)))
+            text_dest.w = self.text_size * chars[index]
             text_dest.h = height
 
             SDL_RenderCopy(renderer, self.image, None, text_dest)

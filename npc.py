@@ -12,7 +12,9 @@ if sys.platform == "win32":
 from sdl2 import *
 import sdl2.ext
 
-from const import WindowSize
+from const import WindowSize, Colors
+from db import DataBase
+from ui import Dialog
 
 RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
@@ -36,8 +38,16 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, renderer, data):
-        self.renderer = renderer
+    def __init__(self, window, data):
+
+        self.current_ticks = 0
+        self.previous_ticks = 0
+        self.dialog_interval = 10000
+
+        self.db = DataBase()
+
+        self.window = window
+        self.renderer = window.renderer
 
         self.name = data["name"]
         self.level = data["level"]
@@ -50,7 +60,7 @@ class NPC:
 
         self.npc_sprites = [
             RESOURCES.get_path("{0}_standing.png".format(self.name)),
-            # RESOURCES.get_path("{0}_walking.png".format(name))
+            # RESOURCES.get_path("{0}_walking.png".format(self.name))
         ]
 
         self.factory = sdl2.ext.SpriteFactory(
@@ -71,6 +81,13 @@ class NPC:
 
         self.init_sprite_sheet()
 
+        self.dialogs = self.db.get_npc_dialog(self.name)
+
+        self.draw_dialog = False
+
+        self.general_talk = False
+        self.dialog_box = None
+
     def init_sprite_sheet(self):
         for motion_type in range(MotionType.COUNT):
             self.load_image(self.npc_sprites[motion_type], motion_type)
@@ -82,6 +99,16 @@ class NPC:
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, position, elapsed_time):
+
+        self.current_ticks = timer.SDL_GetTicks()
+
+        if self.current_ticks - self.previous_ticks >= self.dialog_interval:
+            self.previous_ticks = self.current_ticks
+
+            self.draw_dialog = True
+
+            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
+
         self.position = position
 
         self.frame_index += 1
@@ -132,6 +159,10 @@ class NPC:
                 self.moving = False
 
     def draw(self):
+
+        if self.draw_dialog:
+            self.dialog_box.draw({0: self.dialogs[0]['npc'], 1: self.dialogs[0]['text']})
+
         renderer = self.renderer.renderer
         motion_type = self.motion_type
         facing = self.facing

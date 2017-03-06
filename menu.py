@@ -44,7 +44,7 @@ class Menu:
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, Colors.WHITHE, 32, (300, 200), Colors.BLACK, (200, 64))
+        self.menu_dialog = Dialog(self.window, Colors.WHITHE, 32, (300, 200), Colors.BLACK)
 
     def update(self, elapsed_time):
         pass
@@ -128,7 +128,7 @@ class Menu:
         cursor_dest_rect = SDL_Rect()
 
         cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 200) - (cursor_size / 2))
-        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 60) - (cursor_size / 2)) + (cursor_position[1] * 60)
+        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 72) - (cursor_size / 2)) + (cursor_position[1] * 32)
         cursor_dest_rect.w = cursor_size
         cursor_dest_rect.h = cursor_size
 
