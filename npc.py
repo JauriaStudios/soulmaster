@@ -202,4 +202,4 @@ class NPC:
                 message[i] = text[j:j+max_chars]
                 i += 1
 
-            self.dialog_box.draw(message, (x, y))
+            self.dialog_box.draw(message, (x, y - 100))
