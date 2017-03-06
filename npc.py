@@ -107,7 +107,7 @@ class NPC:
 
             self.draw_dialog = True
 
-            self.dialog_box = Dialog(self.window, Colors.WHITHE, 8, (300, 200), Colors.BLACK, (200, 64))
+            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (300, 200), Colors.BLACK)
 
         self.position = position
 
@@ -161,7 +161,7 @@ class NPC:
     def draw(self):
 
         if self.draw_dialog:
-            self.dialog_box.draw({0: self.dialogs[0]['text']})
+            self.dialog_box.draw({0: self.dialogs[0]['npc'], 1: self.dialogs[0]['text']})
 
         renderer = self.renderer.renderer
         motion_type = self.motion_type

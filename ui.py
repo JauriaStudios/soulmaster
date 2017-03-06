@@ -71,12 +71,14 @@ class Dialog(object):
 
     def draw(self, messages):
 
-        i = 0
-        for k, v in messages.items():
-            for char in v:
+        chars = []
+        for index, text in messages.items():
+            i = 0
+            for char in text:
                 i += 1
+            chars.append(i)
 
-        width = int((self.text_size * i) / 2)
+        width = (self.text_size * i)
         height = self.text_size
         x = self.text_position[0]
         y = self.text_position[1]
@@ -143,7 +145,7 @@ class Dialog(object):
                         )
 
             text_dest = SDL_Rect(x, (y + (self.text_size * index)))
-            text_dest.w = width
+            text_dest.w = self.text_size * chars[index]
             text_dest.h = height
 
             SDL_RenderCopy(renderer, self.image, None, text_dest)
