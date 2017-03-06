@@ -13,6 +13,7 @@ from sdl2 import *
 import sdl2.ext
 
 from const import WindowSize, Colors
+from utils import Timer
 from db import DataBase
 from ui import Dialog
 
@@ -40,9 +41,7 @@ class Facing:
 class NPC:
     def __init__(self, window, data):
 
-        self.current_ticks = 0
-        self.previous_ticks = 0
-        self.dialog_interval = 10000
+        self.dialog_timer = Timer(10000)
 
         self.db = DataBase()
 
@@ -82,10 +81,6 @@ class NPC:
         self.init_sprite_sheet()
 
         self.dialogs = self.db.get_npc_dialog(self.name)
-
-        self.draw_dialog = False
-
-        self.general_talk = False
         self.dialog_box = None
 
     def init_sprite_sheet(self):
@@ -100,14 +95,11 @@ class NPC:
 
     def update(self, position, elapsed_time):
 
-        self.current_ticks = timer.SDL_GetTicks()
-
-        if self.current_ticks - self.previous_ticks >= self.dialog_interval:
-            self.previous_ticks = self.current_ticks
-
-            self.draw_dialog = True
-
+        if self.dialog_timer.check() and self.dialog_box is None:
+            self.dialog_timer.reset()
             self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
+        elif not self.dialog_timer.check():
+            self.dialog_timer.update()
 
         self.position = position
 
@@ -170,9 +162,6 @@ class NPC:
 
     def draw(self):
 
-        if self.draw_dialog:
-            self.dialog_box.draw({0: self.dialogs[0]['npc'], 1: self.dialogs[0]['text']})
-
         renderer = self.renderer.renderer
         motion_type = self.motion_type
         facing = self.facing
@@ -198,3 +187,6 @@ class NPC:
         dest_rect.h = sprite_size
 
         render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+
+        if self.dialog_box:
+            self.dialog_box.draw({0: self.dialogs[0]['npc'], 1: self.dialogs[0]['text']})
