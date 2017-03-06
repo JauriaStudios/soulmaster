@@ -194,8 +194,14 @@ class NPC:
         if self.dialog_box:
             name = self.dialogs[0]['npc']
             text = self.dialogs[0]['text']
-            message = {0: "{0}:".format(name),
-                       1: "{0}".format(text[0:16]),
-                       2: "{0}".format(text[16:])}
+            message = {0: "{0}:".format(name)}
+
+            max_chars = 16
+            i = 1
+            for j in range(0, len(text), max_chars):
+                message[i] = text[j:j+max_chars]
+                i += 1
+
+            print(message)
 
             self.dialog_box.draw(message, (x, y))
