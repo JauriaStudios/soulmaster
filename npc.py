@@ -115,8 +115,8 @@ class NPC:
                 self.facing = randint(0, 7)
 
         if self.moving:
-            self.motion_type = MotionType.WALKING
             if self.walk_frames:
+                self.motion_type = MotionType.WALKING
 
                 if self.facing == 0:
                     # print("LEFT_DOWN")
@@ -201,7 +201,5 @@ class NPC:
             for j in range(0, len(text), max_chars):
                 message[i] = text[j:j+max_chars]
                 i += 1
-
-            print(message)
 
             self.dialog_box.draw(message, (x, y))
