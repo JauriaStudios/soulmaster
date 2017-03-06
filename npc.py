@@ -196,7 +196,7 @@ class NPC:
             text = self.dialogs[0]['text']
             message = {0: "{0}:".format(name)}
 
-            max_chars = 16
+            max_chars = 24
             i = 1
             for j in range(0, len(text), max_chars):
                 message[i] = text[j:j+max_chars]
