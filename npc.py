@@ -60,7 +60,7 @@ class NPC:
 
         self.npc_sprites = [
             RESOURCES.get_path("{0}_standing.png".format(self.name)),
-            # RESOURCES.get_path("{0}_walking.png".format(self.name))
+            RESOURCES.get_path("{0}_walking.png".format(self.name))
         ]
 
         self.factory = sdl2.ext.SpriteFactory(
@@ -123,40 +123,50 @@ class NPC:
                 self.facing = randint(0, 7)
 
         if self.moving:
+            self.motion_type = MotionType.WALKING
             if self.walk_frames:
 
                 if self.facing == 0:
                     # print("LEFT_DOWN")
                     self.movement[0] -= 2
                     self.movement[1] += 1
+                    self.facing = Facing.LEFT_DOWN
                 elif self.facing == 1:
                     # print("DOWN")
                     self.movement[1] += 1
+                    self.facing = Facing.DOWN
                 elif self.facing == 2:
                     # print("RIGHT_DOWN")
                     self.movement[0] += 2
                     self.movement[1] += 1
+                    self.facing = Facing.RIGHT_DOWN
                 elif self.facing == 3:
                     # print("RIGHT")
                     self.movement[0] += 2
+                    self.facing = Facing.RIGHT
                 elif self.facing == 4:
                     # print("RIGHT_UP")
                     self.movement[0] += 2
                     self.movement[1] -= 1
+                    self.facing = Facing.RIGHT_UP
                 elif self.facing == 5:
                     # print("UP")
                     self.movement[1] -= 1
+                    self.facing = Facing.UP
                 elif self.facing == 6:
                     # print("LEFT_UP")
                     self.movement[0] -= 2
                     self.movement[1] -= 1
+                    self.facing = Facing.LEFT_UP
                 elif self.facing == 7:
                     # print("LEFT")
                     self.movement[0] -= 2
+                    self.facing = Facing.LEFT
 
                 self.walk_frames -= 1
             else:
                 self.moving = False
+                self.motion_type = MotionType.STANDING
 
     def draw(self):
 
