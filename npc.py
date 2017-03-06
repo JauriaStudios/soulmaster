@@ -107,7 +107,7 @@ class NPC:
 
             self.draw_dialog = True
 
-            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (40, 200), Colors.BLACK)
+            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
 
         self.position = position
 
