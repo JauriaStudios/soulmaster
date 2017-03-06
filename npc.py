@@ -172,6 +172,9 @@ class NPC:
         sprite = self.sprite_sheets[motion_type]
         sprite_size = self.sprite_size
 
+        x = int(((WindowSize.WIDTH / 2) + position[0] + movement[0]) - (sprite_size / 2))
+        y = int(((WindowSize.HEIGHT / 2) + position[1] + movement[1]) - (sprite_size / 2))
+
         src_rect = SDL_Rect()
 
         src_rect.x = frame_index * sprite_size
@@ -181,12 +184,18 @@ class NPC:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int(((WindowSize.WIDTH / 2) + position[0] + movement[0]) - (sprite_size / 2))
-        dest_rect.y = int(((WindowSize.HEIGHT / 2) + position[1] + movement[1]) - (sprite_size / 2))
+        dest_rect.x = x
+        dest_rect.y = y
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
         render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
         if self.dialog_box:
-            self.dialog_box.draw({0: self.dialogs[0]['npc'], 1: self.dialogs[0]['text']})
+            name = self.dialogs[0]['npc']
+            text = self.dialogs[0]['text']
+            message = {0: "{0}:".format(name),
+                       1: "{0}".format(text[0:16]),
+                       2: "{0}".format(text[16:])}
+
+            self.dialog_box.draw(message, (x, y))
