@@ -78,7 +78,7 @@ class Dialog(object):
                 i += 1
             chars.append(i)
 
-        width = (self.text_size * i)
+        width = (self.text_size * max(chars))
         height = self.text_size
         x = self.text_position[0]
         y = self.text_position[1]

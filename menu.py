@@ -128,7 +128,7 @@ class Menu:
         cursor_dest_rect = SDL_Rect()
 
         cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 200) - (cursor_size / 2))
-        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 60) - (cursor_size / 2)) + (cursor_position[1] * 60)
+        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 72) - (cursor_size / 2)) + (cursor_position[1] * 32)
         cursor_dest_rect.w = cursor_size
         cursor_dest_rect.h = cursor_size
 
