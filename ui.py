@@ -69,7 +69,10 @@ class Dialog(object):
         TTF_CloseFont(font)
         return texture
 
-    def draw(self, messages):
+    def draw(self, messages, text_position=None):
+
+        if text_position:
+            self.text_position = text_position
 
         chars = []
         for index, text in messages.items():
