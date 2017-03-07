@@ -192,8 +192,8 @@ class NPC:
         self.dialog_draw((x, y))
 
     def dialog_update(self):
+
         self.dialog_timer.update()
-        self.close_dialog_timer.update()
 
         if self.dialog_timer.check():
             self.dialog_timer.reset()
@@ -201,8 +201,11 @@ class NPC:
             self.msg = dice(len(self.dialogs) - 1)
             self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
 
+        self.close_dialog_timer.update()
+
         if self.close_dialog_timer.check():
             self.close_dialog_timer.reset()
+            self.dialog_timer.activate()
             self.dialog_box = None
 
     def dialog_draw(self, position):
