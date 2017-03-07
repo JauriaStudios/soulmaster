@@ -3,8 +3,6 @@
 import sys
 import os
 
-from random import randint
-
 # If we're on Windows, use the included compiled DLLs.
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
@@ -13,7 +11,7 @@ from sdl2 import *
 import sdl2.ext
 
 from const import WindowSize, Colors
-from utils import Timer
+from utils import Timer, dice
 from db import DataBase
 from ui import Dialog
 
@@ -83,6 +81,7 @@ class NPC:
 
         self.dialogs = self.db.get_npc_dialog(self.name)
         self.dialog_box = None
+        self.msg = None
 
     def init_sprite_sheet(self):
         for motion_type in range(MotionType.COUNT):
@@ -96,18 +95,6 @@ class NPC:
 
     def update(self, position, elapsed_time):
 
-        self.dialog_timer.update()
-        self.close_dialog_timer.update()
-
-        if self.dialog_timer.check():
-            self.dialog_timer.reset()
-            self.close_dialog_timer.activate()
-            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
-
-        if self.close_dialog_timer.check():
-            self.close_dialog_timer.reset()
-            self.dialog_box = None
-
         self.position = position
 
         self.frame_index += 1
@@ -116,10 +103,12 @@ class NPC:
             self.frame_index = 0
 
         if not self.moving:
-            if randint(0, 200) == 200:
+            move = dice(200)
+            if move[0] == 200:
                 self.moving = True
                 self.walk_frames = 60
-                self.facing = randint(0, 7)
+                facing = dice(8)
+                self.facing = facing[0] - 1
 
         if self.moving:
             if self.walk_frames:
@@ -167,6 +156,8 @@ class NPC:
                 self.moving = False
                 self.motion_type = MotionType.STANDING
 
+        self.dialog_update()
+
     def draw(self):
 
         renderer = self.renderer.renderer
@@ -198,9 +189,30 @@ class NPC:
 
         render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
+        self.dialog_draw((x, y))
+
+    def dialog_update(self):
+        self.dialog_timer.update()
+        self.close_dialog_timer.update()
+
+        if self.dialog_timer.check():
+            self.dialog_timer.reset()
+            self.close_dialog_timer.activate()
+            self.msg = dice(len(self.dialogs) - 1)
+            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
+
+        if self.close_dialog_timer.check():
+            self.close_dialog_timer.reset()
+            self.dialog_box = None
+
+    def dialog_draw(self, position):
+
         if self.dialog_box:
-            name = self.dialogs[0]['npc']
-            text = self.dialogs[0]['text']
+
+            x, y = position
+
+            name = self.dialogs[self.msg[0]]['npc']
+            text = self.dialogs[self.msg[0]]['text']
             message = {0: "{0}:".format(name)}
 
             max_chars = 24

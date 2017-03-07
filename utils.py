@@ -16,10 +16,10 @@ def dict_factory(cursor, row):
     return d
 
 
-def dice(dice_faces, num):
+def dice(dice_faces, num=1):
     results = []
     for i in range(num):
-        result = randint(1, dice_faces)
+        result = randint(0, dice_faces)
         results.append(result)
 
     return results
