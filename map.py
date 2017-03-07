@@ -27,8 +27,9 @@ class TiledRenderer(object):
         logger.info("Objects in map:")
         for obj in self.tmx_data.objects:
             logger.info(obj)
+            logger.info("BLOCK\t{0}".format(obj.points))
             for k, v in obj.properties.items():
-                logger.info("{0}\t{1}".format(k, v))
+                logger.info("PROPS\t{0}\t{1}".format(k, v))
 
         logger.info("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
