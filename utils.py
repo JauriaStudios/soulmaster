@@ -26,20 +26,29 @@ def dice(dice_faces, num):
 
 
 class Timer:
-    def __init__(self, ticks):
+    def __init__(self, ticks, activated=False):
+        self.start_ticks = 0
         self.current_ticks = 0
         self.previous_ticks = 0
         self.interval = ticks
         self.enabled = False
+        self.activated = activated
 
     def update(self):
-        self.current_ticks = timer.SDL_GetTicks()
-        if self.current_ticks - self.previous_ticks >= self.interval:
-            self.previous_ticks = self.current_ticks
-            self.enabled = True
+        if self.activated:
+            self.current_ticks = timer.SDL_GetTicks()
+            self.current_ticks -= self.start_ticks
+            if self.current_ticks - self.previous_ticks >= self.interval:
+                self.previous_ticks = self.current_ticks
+                self.enabled = True
 
     def check(self):
         return self.enabled
 
     def reset(self):
+        self.activated = False
         self.enabled = False
+
+    def activate(self):
+        self.start_ticks = timer.SDL_GetTicks()
+        self.activated = True

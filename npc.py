@@ -41,7 +41,8 @@ class Facing:
 class NPC:
     def __init__(self, window, data):
 
-        self.dialog_timer = Timer(10000)
+        self.dialog_timer = Timer(10000, activated=True)
+        self.close_dialog_timer = Timer(10000)
 
         self.db = DataBase()
 
@@ -95,11 +96,17 @@ class NPC:
 
     def update(self, position, elapsed_time):
 
-        if self.dialog_timer.check() and self.dialog_box is None:
+        self.dialog_timer.update()
+        self.close_dialog_timer.update()
+
+        if self.dialog_timer.check():
             self.dialog_timer.reset()
+            self.close_dialog_timer.activate()
             self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
-        elif not self.dialog_timer.check():
-            self.dialog_timer.update()
+
+        if self.close_dialog_timer.check():
+            self.close_dialog_timer.reset()
+            self.dialog_box = None
 
         self.position = position
 
