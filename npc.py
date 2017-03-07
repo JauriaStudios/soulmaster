@@ -107,8 +107,8 @@ class NPC:
             if move[0] == 200:
                 self.moving = True
                 self.walk_frames = 60
-                facing = dice(8)
-                self.facing = facing[0] - 1
+                facing = dice(Facing.COUNT - 1)
+                self.facing = facing[0]
 
         if self.moving:
             if self.walk_frames:
