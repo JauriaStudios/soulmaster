@@ -114,8 +114,9 @@ class TiledRenderer(object):
             surf = self.window.get_surface()
             color = Colors.RED
 
-            lines = [num for elem in block.points for num in elem]
+            points = []
+            for line in block.points:
+                points.append(line[0] + self.pos[0])
+                points.append(line[1] + self.pos[1])
 
-            # print(lines)
-
-            sdl2.ext.line(surf, color, lines)
+            sdl2.ext.line(surf, color, points)
