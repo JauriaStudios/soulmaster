@@ -103,7 +103,7 @@ class TiledRenderer(object):
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(layer, level)
 
-        # self.draw_block_elements()
+        self.draw_block_elements()
 
     def update(self, position, elapsed_time):
         self.pos = position
@@ -114,17 +114,8 @@ class TiledRenderer(object):
             surf = self.window.get_surface()
             color = Colors.RED
 
-            # points = [num for elem in block.points for num in elem]
+            lines = [num for elem in block.points for num in elem]
 
-            points = []
+            # print(lines)
 
-            for coord in block.points:
-                for i in range(2):
-                    points.append(coord[0])
-                    points.append(coord[1])
-                    points.append(coord[1])
-
-            print(points)
-
-            sdl2.ext.line(surf, color, points)
-
+            sdl2.ext.line(surf, color, lines)
