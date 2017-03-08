@@ -77,6 +77,8 @@ class NPC:
         self.frame_index = 0
         self.walk_frames = 60
 
+        self.start_pos = (200, 200)
+
         self.init_sprite_sheet()
 
         self.dialogs = self.db.get_npc_dialog(self.name)
@@ -170,8 +172,8 @@ class NPC:
         sprite = self.sprite_sheets[motion_type]
         sprite_size = self.sprite_size
 
-        x = int(((WindowSize.WIDTH / 2) + position[0] + movement[0]) - (sprite_size / 2))
-        y = int(((WindowSize.HEIGHT / 2) + position[1] + movement[1]) - (sprite_size / 2))
+        x = int((self.start_pos[0] + position[0] + movement[0]) - (sprite_size / 2))
+        y = int((self.start_pos[1] + position[1] + movement[1]) - (sprite_size / 2))
 
         src_rect = SDL_Rect()
 
