@@ -20,12 +20,12 @@ FONTS = sdl2.ext.Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog(object):
-    def __init__(self, window, text_color, text_size, text_position, dialog_color):
+    def __init__(self, window, renderer, text_color, text_size, text_position, dialog_color):
         TTF_Init()
 
         self.window = window
         self.window_size = window.size
-        self.sdl_renderer = window.renderer
+        self.sdl_renderer = renderer
 
         self.text_color = text_color
         self.text_size = text_size

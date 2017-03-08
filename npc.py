@@ -37,7 +37,7 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, window, data):
+    def __init__(self, window, renderer, data):
 
         self.dialog_timer = Timer(10000, activated=True)
         self.close_dialog_timer = Timer(10000)
@@ -45,7 +45,7 @@ class NPC:
         self.db = DataBase()
 
         self.window = window
-        self.renderer = window.renderer
+        self.renderer = renderer
 
         self.name = data["name"]
         self.level = data["level"]
@@ -199,7 +199,7 @@ class NPC:
             self.dialog_timer.reset()
             self.close_dialog_timer.activate()
             self.msg = dice(len(self.dialogs) - 1)
-            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
+            self.dialog_box = Dialog(self.window, self.renderer, Colors.WHITE, 16, (10, 400), Colors.BLACK)
 
         self.close_dialog_timer.update()
 

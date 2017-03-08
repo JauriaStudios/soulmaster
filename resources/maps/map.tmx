@@ -12,13 +12,13 @@
   </data>
  </layer>
  <objectgroup name="Capa de Objetos 1">
-  <object id="6" name="piloon 1" x="382" y="438">
+  <object id="6" name="piloon" x="382" y="438">
    <properties>
     <property name="block" type="bool" value="true"/>
    </properties>
    <polygon points="1.33333,3.33333 30.1667,2.5 29,-17 2.33333,-19.6667"/>
   </object>
-  <object id="7" name="piloon 2" x="460.167" y="448.5">
+  <object id="7" name="piloon" x="460.167" y="448.5">
    <properties>
     <property name="block" type="bool" value="true"/>
    </properties>
