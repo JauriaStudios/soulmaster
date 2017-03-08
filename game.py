@@ -33,7 +33,7 @@ MAPS = sdl2.ext.Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
-    def __init__(self, window):
+    def __init__(self, window, renderer):
 
         self.db = DataBase()
 
@@ -42,9 +42,9 @@ class Game(object):
         self.running = False
         self.window = window
         self.window_size = window.size
-        self.sdl_renderer = window.renderer
+        self.sdl_renderer = renderer
 
-        self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
+        self.map_renderer = TiledRenderer(map_file, self.window, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
 
@@ -69,7 +69,7 @@ class Game(object):
         all_npc_names = self.db.get_all_npc()
 
         for data in all_npc_names:
-            npc = NPC(self.window, data)
+            npc = NPC(self.window, self.sdl_renderer, data)
             self.all_npc.append(npc)
 
     def update(self, position, elapsed_time):

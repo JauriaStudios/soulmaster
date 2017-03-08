@@ -7,22 +7,27 @@ import sys
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-import sdl2
+from sdl2 import *
 import sdl2.ext
 
 from pytmx import *
 from pytmx.util_pysdl2 import load_pysdl2
 
-from const import WindowSize
+from const import WindowSize, Colors
 
 
 class TiledRenderer(object):
-    def __init__(self, filename, renderer):
-        tm = load_pysdl2(renderer, filename)
+    def __init__(self, filename, window, renderer):
+
+        self.window = window
+        self.renderer = renderer
+
+        tm = load_pysdl2(self.renderer, filename)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
-        self.renderer = renderer
         self.pos = (0, 0)
+
+        self.block_elements = []
 
         logger.info("Objects in map:")
         for obj in self.tmx_data.objects:
@@ -30,6 +35,9 @@ class TiledRenderer(object):
             logger.info("BLOCK\t{0}".format(obj.points))
             for k, v in obj.properties.items():
                 logger.info("PROPS\t{0}\t{1}".format(k, v))
+                if (k == "block") and (v == "true"):
+                    logger.info("FOUND BLOCK")
+                    self.block_elements.append(obj)
 
         logger.info("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
@@ -46,8 +54,8 @@ class TiledRenderer(object):
         th = self.tmx_data.tileheight
         pos = self.pos
 
-        dest = sdl2.rect.SDL_Rect(0, 0, tw, th + 96)
-        rce = sdl2.SDL_RenderCopyEx
+        dest = rect.SDL_Rect(0, 0, tw, th + 96)
+        rce = SDL_RenderCopyEx
 
         background = layer.properties['background']
 
@@ -95,6 +103,28 @@ class TiledRenderer(object):
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(layer, level)
 
+        # self.draw_block_elements()
+
     def update(self, position, elapsed_time):
         self.pos = position
+
+    def draw_block_elements(self):
+
+        for block in self.block_elements:
+            surf = self.window.get_surface()
+            color = Colors.RED
+
+            # points = [num for elem in block.points for num in elem]
+
+            points = []
+
+            for coord in block.points:
+                for i in range(2):
+                    points.append(coord[0])
+                    points.append(coord[1])
+                    points.append(coord[1])
+
+            print(points)
+
+            sdl2.ext.line(surf, color, points)
 

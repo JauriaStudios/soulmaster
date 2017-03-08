@@ -22,10 +22,10 @@ RESOURCES = sdl2.ext.Resources(__file__, 'resources')
 
 
 class Menu:
-    def __init__(self, window):
+    def __init__(self, window, renderer):
         self.window = window
-        self.renderer = window.renderer
-        self.sdl_renderer = window.renderer.renderer
+        self.renderer = renderer
+        self.sdl_renderer = renderer.renderer
 
         self.menu_bg = RESOURCES.get_path("menu_bg.png")
         self.menu_cursor = RESOURCES.get_path("menu_cursor.png")
@@ -44,7 +44,7 @@ class Menu:
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, Colors.WHITHE, 32, (300, 200), Colors.BLACK)
+        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WITHE, 32, (300, 200), Colors.BLACK)
 
     def update(self, elapsed_time):
         pass
@@ -143,7 +143,7 @@ class Menu:
         self.renderer.present()
 
     def launch_debug(self):
-        game = Game(self.window)
+        game = Game(self.window, self.renderer)
         game.run()
 
         self.running = True
