@@ -7,12 +7,12 @@ import sys
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-import sdl2.ext
+from sdl2 import SDL_Rect, SDL_RenderCopy
+from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
 
-RESOURCES = sdl2.ext.Resources(__file__, 'resources')
+RESOURCES = ext.Resources(__file__, 'resources')
 
 
 class Facing:
@@ -35,8 +35,8 @@ class Projectile:
 
         self.projectile_sprites = RESOURCES.get_path("player_standing.png")
 
-        self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE,
+        self.factory = SpriteFactory(
+            TEXTURE,
             renderer=self.renderer
         )
 
@@ -84,5 +84,5 @@ class Projectile:
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
-        render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
