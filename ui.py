@@ -8,15 +8,15 @@ import sys
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-from sdl2.sdlttf import *
-import sdl2.ext
+from sdl2 import SDL_ClearError, SDL_CreateTextureFromSurface, SDL_FreeSurface, SDL_RenderCopy, SDL_Rect
+from sdl2.sdlttf import TTF_Init, TTF_Quit, TTF_RenderText_Blended, TTF_OpenFont, TTF_CloseFont
+from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import Colors, WindowSize
 
 
-RESOURCES = sdl2.ext.Resources(__file__, 'resources')
-FONTS = sdl2.ext.Resources(__file__, 'resources', 'fonts')
+RESOURCES = Resources(__file__, 'resources')
+FONTS = Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog(object):
@@ -36,8 +36,8 @@ class Dialog(object):
 
         self.image = None
 
-        self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE,
+        self.factory = SpriteFactory(
+            TEXTURE,
             renderer=self.sdl_renderer
         )
 
