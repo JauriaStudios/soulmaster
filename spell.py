@@ -16,20 +16,19 @@ RESOURCES = Resources(__file__, 'resources', 'spells')
 
 
 class Facing:
-    LEFT_DOWN = 0
-    DOWN = 1
-    RIGHT_DOWN = 2
-    RIGHT = 3
-    RIGHT_UP = 4
-    UP = 5
-    LEFT_UP = 6
-    LEFT = 7
+    LEFT = 0
+    LEFT_UP = 1
+    UP = 2
+    RIGHT_UP = 3
+    RIGHT = 4
+    RIGHT_DOWN = 5
+    DOWN = 6
+    LEFT_DOWN = 7
     COUNT = 8
 
 
 class Spell:
-    def __init__(self, renderer, name):
-        print("SPELL CREATE")
+    def __init__(self, renderer, name, facing, position):
         self.renderer = renderer
 
         self.sprite_size = 64
@@ -43,18 +42,37 @@ class Spell:
 
         self.sprite_sheet = self.factory.from_image(self.sprites)
 
-        self.facing = Facing.LEFT_DOWN
+        self.facing = map(Facing.)
         self.last_facing = self.facing
 
         self.frame_index = 0
-        self.position = [0, 0]
+        self.position = position
+        self.speed = [0, 0]
 
-    def update(self, facing, elapsed_time):
-        print("SPELL UPDATE")
-
-        self.facing = facing
+    def update(self, elapsed_time):
 
         self.frame_index += 1
+
+        if self.player_facing == Facing.LEFT_DOWN:
+            self.speed[0] -= 2
+            self.speed[1] += 1
+        elif self.player_facing == Facing.DOWN:
+            self.speed[1] += 1
+        elif self.player_facing == Facing.RIGHT_DOWN:
+            self.speed[0] += 2
+            self.speed[1] += 1
+        elif self.player_facing == Facing.RIGHT:
+            self.speed[0] += 2
+        elif self.player_facing == Facing.RIGHT_UP:
+            self.speed[0] += 2
+            self.speed[1] -= 1
+        elif self.player_facing == Facing.UP:
+            self.speed[1] -= 1
+        elif self.player_facing == Facing.LEFT_UP:
+            self.speed[0] -= 2
+            self.speed[1] -= 1
+        elif self.player_facing == Facing.LEFT:
+            self.speed[0] -= 2
 
         if self.facing != self.last_facing:
             self.frame_index = 0
@@ -65,11 +83,12 @@ class Spell:
         self.last_facing = self.facing
 
     def draw(self):
-        print("SPELL DRAW")
 
         renderer = self.renderer.renderer
         facing = self.facing
         frame_index = self.frame_index
+        position = self.position
+        speed = self.speed
 
         sprite = self.sprite_sheet
         sprite_size = self.sprite_size
@@ -83,8 +102,8 @@ class Spell:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2) + self.position[0])
-        dest_rect.y = int((WindowSize.HEIGHT / 2) - (sprite_size / 2) + self.position[0])
+        dest_rect.x = int((WindowSize.WIDTH / 2) + position[0] + speed[0])
+        dest_rect.y = int((WindowSize.HEIGHT / 2) + position[1] + speed[1])
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 

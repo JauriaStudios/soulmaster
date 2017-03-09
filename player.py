@@ -66,7 +66,7 @@ class Player:
 
         self.init_sprite_sheet()
         self.spell = None
-        self.fire = False
+        self.spell_life = 0
 
     def init_sprite_sheet(self):
 
@@ -85,13 +85,17 @@ class Player:
         self.facing = facing
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
-            self.fire = True
-            self.spell = Spell(elapsed_time, "fireball")
+            if not self.spell_life:
+                self.spell_life = 100
+                self.spell = Spell(self.renderer, "fireball", self.facing, self.position)
         else:
             self.frame_index += 1
 
-        if self.spell:
-            self.spell.update(elapsed_time, self.facing)
+        if self.spell_life:
+            self.spell_life -= 1
+            self.spell.update(elapsed_time)
+        else:
+            self.spell = None
 
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
@@ -128,5 +132,5 @@ class Player:
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
-        if self.spell:
+        if self.spell_life:
             self.spell.draw()
