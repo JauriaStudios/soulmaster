@@ -8,7 +8,7 @@ import json
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
+from sdl2 import SDL_Rect, SDL_RenderCopy
 import sdl2.ext
 
 from const import WindowSize, Colors
@@ -194,7 +194,7 @@ class NPC:
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
-        render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
         self.dialog_draw((x, y))
 
