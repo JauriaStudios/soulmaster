@@ -183,7 +183,7 @@ class Game(object):
 
             # Player Attack
             elif game_input.is_key_held(SDLK_SPACE):
-                motion_type = MotionType.PRECAST
+                motion_type = MotionType.CASTING
 
             # Nothing
             else:

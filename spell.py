@@ -12,7 +12,7 @@ from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
 
-RESOURCES = Resources(__file__, 'resources')
+RESOURCES = Resources(__file__, 'resources', 'spells')
 
 
 class Facing:
@@ -27,27 +27,30 @@ class Facing:
     COUNT = 8
 
 
-class Projectile:
-    def __init__(self, renderer):
+class Spell:
+    def __init__(self, renderer, name):
+        print("SPELL CREATE")
         self.renderer = renderer
 
         self.sprite_size = 64
 
-        self.projectile_sprites = RESOURCES.get_path("player_standing.png")
+        self.sprites = RESOURCES.get_path("{0}.png".format(name))
 
         self.factory = SpriteFactory(
             TEXTURE,
             renderer=self.renderer
         )
 
-        self.sprite_sheet = self.factory.from_image(self.projectile_sprites)
+        self.sprite_sheet = self.factory.from_image(self.sprites)
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
 
         self.frame_index = 0
+        self.position = [0, 0]
 
     def update(self, facing, elapsed_time):
+        print("SPELL UPDATE")
 
         self.facing = facing
 
@@ -62,6 +65,7 @@ class Projectile:
         self.last_facing = self.facing
 
     def draw(self):
+        print("SPELL DRAW")
 
         renderer = self.renderer.renderer
         facing = self.facing
@@ -79,10 +83,9 @@ class Projectile:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2))
-        dest_rect.y = int((WindowSize.HEIGHT / 2) - (sprite_size / 2))
+        dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2) + self.position[0])
+        dest_rect.y = int((WindowSize.HEIGHT / 2) - (sprite_size / 2) + self.position[0])
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
-
