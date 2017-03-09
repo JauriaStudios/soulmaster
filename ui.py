@@ -18,7 +18,7 @@ from sdl2.sdlttf import *  # Better to import just specific objects needed...
 from const import Colors, WindowSize  # ...just like here.
 
 
-RESOURCES = Resources(__file__, 'resources')
+RESOURCES = Resources(__file__, 'resources', 'ui')
 FONTS = Resources(__file__, 'resources', 'fonts')
 
 # If running on Windows, use the included compiled DLLs.
