@@ -8,9 +8,8 @@ from math import sqrt
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import SDL_RenderCopyEx
-from sdl2.rect import SDL_Rect
-import sdl2.ext
+from sdl2 import SDL_RenderCopyEx, SDL_Rect
+from sdl2.ext import line
 
 from pytmx import *
 from pytmx.util_pysdl2 import load_pysdl2
@@ -116,8 +115,8 @@ class TiledRenderer:
         points = []
 
         for block in self.blocking_elements:
-            for line in block.points:
-                points.append(round(line[0]) + self.pos[0])
-                points.append(round(line[1]) + self.pos[1])
+            for lines in block.points:
+                points.append(round(lines[0]) + self.pos[0])
+                points.append(round(lines[1]) + self.pos[1])
 
-        sdl2.ext.line(surf, color, points)
+        line(surf, color, points)
