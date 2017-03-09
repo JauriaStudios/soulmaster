@@ -49,7 +49,7 @@ class Game(object):
         self.player = Player(self.sdl_renderer)
 
         self.all_npc = []
-        self.init_npc("debug_room")
+        self.init_npc("Debug Room")
 
         self.doombat = Enemy(self.sdl_renderer, "doombat")
 
@@ -66,11 +66,15 @@ class Game(object):
 
     def init_npc(self, map):
 
-        all_npc_names = self.db.get_all_npc()
+        map_data = self.db.get_map_npc(map)
 
-        for data in all_npc_names:
-            npc = NPC(self.window, self.sdl_renderer, data)
-            self.all_npc.append(npc)
+        map_npc = []
+
+        for data in map_data:
+            map_npc.append(data["npc"])
+
+        for npc in map_npc:
+            self.all_npc.append(NPC(self.window, self.sdl_renderer, npc))
 
     def update(self, position, elapsed_time):
         for npc in self.all_npc:

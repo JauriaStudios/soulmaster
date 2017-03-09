@@ -36,11 +36,22 @@ class DataBase:
             cursor.execute('SELECT * FROM npc WHERE name = ?', (name,))
             query = cursor.fetchone()
 
+        return query
+
     def get_npc_dialog(self, name):
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = dict_factory
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM dialogs WHERE npc = ?', (name,))
+            query = cursor.fetchall()
+
+        return query
+
+    def get_map_npc(self, map):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM map WHERE name = ?', (map,))
             query = cursor.fetchall()
 
         return query

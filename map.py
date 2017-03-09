@@ -104,7 +104,7 @@ class TiledRenderer:
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(layer, level)
 
-        self.draw_blocking_elements()
+        # self.draw_blocking_elements()
 
     def update(self, position, elapsed_time):
         self.pos = position

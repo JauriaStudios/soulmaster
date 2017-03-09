@@ -2,6 +2,7 @@
 
 import sys
 import os
+import json
 
 # If we're on Windows, use the included compiled DLLs.
 if sys.platform == "win32":
@@ -37,7 +38,7 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, window, renderer, data):
+    def __init__(self, window, renderer, json_data):
 
         self.dialog_timer = Timer(10000, activated=True)
         self.close_dialog_timer = Timer(10000)
@@ -47,9 +48,15 @@ class NPC:
         self.window = window
         self.renderer = renderer
 
+        data = json.loads(json_data)
+
         self.name = data["name"]
-        self.level = data["level"]
-        self.quest = data["quest"]
+        self.start_pos = data["start_pos"]
+
+        self.npc_data = self.db.get_npc(self.name)
+
+        self.level = self.npc_data["level"]
+        self.quest = self.npc_data["quest"]
         self.sprite_size = 128
         self.position = [0, 0]
         self.movement = [0, 0]
@@ -76,8 +83,6 @@ class NPC:
 
         self.frame_index = 0
         self.walk_frames = 60
-
-        self.start_pos = (200, 200)
 
         self.init_sprite_sheet()
 
@@ -172,8 +177,8 @@ class NPC:
         sprite = self.sprite_sheets[motion_type]
         sprite_size = self.sprite_size
 
-        x = int((self.start_pos[0] + position[0] + movement[0]) - (sprite_size / 2))
-        y = int((self.start_pos[1] + position[1] + movement[1]) - (sprite_size / 2))
+        x = int((int(self.start_pos[0]) + position[0] + movement[0]) - (sprite_size / 2))
+        y = int((int(self.start_pos[1]) + position[1] + movement[1]) - (sprite_size / 2))
 
         src_rect = SDL_Rect()
 
