@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sdl2 import pixels
 
 
