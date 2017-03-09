@@ -62,7 +62,7 @@ class Player:
 
         self.frame_index = 0
 
-        self.position = [0, 0]
+        self.player_pos = [0, 0]
 
         self.init_sprite_sheet()
         self.spell = None
@@ -80,20 +80,19 @@ class Player:
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, motion_type, facing, elapsed_time):
-
         self.motion_type = motion_type
         self.facing = facing
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:
                 self.spell_life = 100
-                self.spell = Spell(self.renderer, "fireball", self.facing, self.position)
+                self.spell = Spell(self.renderer, "fireball", self.facing )
         else:
             self.frame_index += 1
 
         if self.spell_life:
             self.spell_life -= 1
-            self.spell.update(elapsed_time)
+            self.spell.update(self.player_pos, elapsed_time)
         else:
             self.spell = None
 
