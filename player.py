@@ -85,7 +85,7 @@ class Player:
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:
-                self.spell_life = 100
+                self.spell_life = 300
                 self.spell = Spell(self.renderer, "fireball", self.facing )
         else:
             self.frame_index += 1
