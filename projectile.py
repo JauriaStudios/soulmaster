@@ -12,7 +12,7 @@ from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
 
-RESOURCES = ext.Resources(__file__, 'resources')
+RESOURCES = Resources(__file__, 'resources')
 
 
 class Facing:
