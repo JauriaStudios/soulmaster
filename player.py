@@ -92,7 +92,7 @@ class Player:
 
         if self.spell_life:
             self.spell_life -= 1
-            self.spell.update(self.player_pos, elapsed_time)
+            self.spell.update(elapsed_time)
         else:
             self.spell = None
 

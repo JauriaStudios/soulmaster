@@ -49,11 +49,9 @@ class Spell:
 
         self.frame_index = 0
         self.speed = [0, 0]
-        self.player_pos = 0
 
-    def update(self, player_pos, elapsed_time):
+    def update(self, elapsed_time):
 
-        self.player_pos = player_pos
         self.frame_index += 1
 
         if self.facing == Facing.LEFT_DOWN:
@@ -91,7 +89,6 @@ class Spell:
         facing = self.facing
         frame_index = self.frame_index
         speed = self.speed
-        player_pos = self.player_pos
 
         sprite = self.sprite_sheet
         sprite_size = self.sprite_size
@@ -105,8 +102,8 @@ class Spell:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int((WindowSize.WIDTH / 2) + speed[0] - player_pos[0])
-        dest_rect.y = int((WindowSize.HEIGHT / 2) + speed[1] - player_pos[1])
+        dest_rect.x = int((WindowSize.WIDTH / 2) + speed[0])
+        dest_rect.y = int((WindowSize.HEIGHT / 2) + speed[1])
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
