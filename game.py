@@ -12,7 +12,7 @@ from player import Player, Facing, MotionType
 from npc import NPC
 from enemy import Enemy
 
-FPS = 60  # units.FPS
+FPS = 30  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 
 RESOURCES = Resources(__file__, 'resources')
