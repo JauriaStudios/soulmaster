@@ -139,11 +139,13 @@ class Player:
         if self.inventory:
             self.inventory.draw()
 
-    def open_inventory(self):
+    def toggle_inventory(self):
 
-        window = self.window
-        renderer = self.renderer
-
-        self.inventory = Inventory(window, renderer)
+        if self.inventory:
+            self.inventory = None
+        else:
+            window = self.window
+            renderer = self.renderer
+            self.inventory = Inventory(window, renderer)
 
 

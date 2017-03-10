@@ -168,7 +168,7 @@ class Game(object):
                 facing = Facing.DOWN
 
             elif game_input.was_key_pressed(SDLK_i):
-                self.player.open_inventory()
+                self.player.toggle_inventory()
 
             # Player Attack
             elif game_input.is_key_held(SDLK_SPACE):
