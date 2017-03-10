@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+
+import json
+
+from sdl2.ext import Resources
+
+from const import Colors
+from ui import Dialog
+from db import DataBase
+
+RESOURCES = Resources(__file__, 'resources', 'ui')
+
+
+class Inventory:
+    def __init__(self, window, renderer):
+
+        self.db = DataBase()
+
+        self.window = window
+        self.renderer = renderer
+
+        self.inventory = self.db.get_player_inventory()
+        self.equipped = json.loads(self.inventory["equipped"])
+        self.left_hand_id = self.equipped["left_hand"]
+        self.left_hand = self.db.get_item_by_id(self.left_hand_id)
+        print(self.left_hand)
+
+        self.menu_text = {0: self.left_hand["name"], 1: self.left_hand["description"]}
+        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 8, (300, 200), Colors.BLACK)
+
+
+    def update(self, elapsed_time):
+        pass
+
+    def draw(self):
+        menu_text = self.menu_text
+
+        self.menu_dialog.draw(menu_text)
