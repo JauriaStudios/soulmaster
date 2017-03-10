@@ -1,10 +1,6 @@
-import sys
-import os
-from random import randint
+# coding=utf-8
 
-# If we're on Windows, use the included compiled DLLs.
-if sys.platform == "win32":
-    os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
+from random import randint
 
 from sdl2 import SDL_GetTicks
 

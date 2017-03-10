@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import logging
-
-# If we're on Windows, use the included compiled DLLs.
-if sys.platform == "win32":
-    os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
-
 from sdl2 import SDL_Quit, SDL_GetTicks, SDL_KEYUP, SDL_KEYDOWN, SDL_QUIT,SDL_Delay
 from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE
 from sdl2.ext import Resources, get_events

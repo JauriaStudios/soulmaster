@@ -1,30 +1,13 @@
-#! /usr/bin/env python3
 # coding=utf-8
-
-
-import os
-import sys
-
-# If we're on Windows, use the included compiled DLLs.
-if sys.platform == "win32":
-    os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
 from sdl2 import SDL_ClearError, SDL_CreateTextureFromSurface, SDL_FreeSurface, SDL_RenderCopy, SDL_Rect
 from sdl2.sdlttf import TTF_Init, TTF_Quit, TTF_RenderText_Blended, TTF_OpenFont, TTF_CloseFont
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
-from sdl2 import *  # Bad idea to import like this!
-from sdl2.sdlttf import *  # Better to import just specific objects needed...
-from const import Colors, WindowSize  # ...just like here.
-
+from const import Colors, WindowSize
 
 RESOURCES = Resources(__file__, 'resources', 'ui')
 FONTS = Resources(__file__, 'resources', 'fonts')
-
-# If running on Windows, use the included compiled DLLs.
-windows = "win32"
-if windows in sys.platform:
-    os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
 
 class Dialog:
