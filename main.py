@@ -14,7 +14,7 @@ def main():
     init()
 
     window = Window("Soul Master", size=screen_size)
-    window.renderer = Renderer(window, SDL_RENDERER_ACCELERATED)
+    window.renderer = Renderer(window)  # , SDL_RENDERER_ACCELERATED)
     window.renderer.color = 0, 0, 0, 0
     window.show()
 

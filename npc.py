@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from sdl2 import SDL_Rect, SDL_RenderCopy
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
