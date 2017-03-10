@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-from random import randint
-
-# If we're on Windows, use the included compiled DLLs.
-if sys.platform == "win32":
-    os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
-
 from sdl2 import SDL_Rect, SDL_RenderCopy
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
