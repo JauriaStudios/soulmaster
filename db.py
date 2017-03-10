@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import sqlite3
+
 from sdl2.ext import Resources
 
 from utils import dict_factory
