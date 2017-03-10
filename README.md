@@ -7,3 +7,5 @@ Soulmaster is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with Soulmaster. If not, see http://www.gnu.org/licenses/.
 
 The copy of the GNU General Public License is included along with Soulmaster in the LICENSE file.
+
+[![Join the chat at https://gitter.im/JauriaStudios/soulmaster](https://badges.gitter.im/JauriaStudios/soulmaster.svg)](https://gitter.im/JauriaStudios/soulmaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
