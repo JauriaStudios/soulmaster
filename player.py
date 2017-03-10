@@ -4,6 +4,7 @@ from sdl2 import SDL_Rect, SDL_RenderCopy
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
+from spell import Spell
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -11,7 +12,7 @@ RESOURCES = Resources(__file__, 'resources')
 class MotionType:
     STANDING = 0
     WALKING = 1
-    PRECAST = 2
+    CASTING = 2
     COUNT = 3
 
 
@@ -36,7 +37,7 @@ class Player:
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
             RESOURCES.get_path("player_walking.png"),
-            RESOURCES.get_path("player_precast.png")
+            RESOURCES.get_path("player_casting.png")
         ]
 
         self.factory = SpriteFactory(
@@ -54,9 +55,11 @@ class Player:
 
         self.frame_index = 0
 
-        self.position = [0, 0]
+        self.player_pos = [0, 0]
 
         self.init_sprite_sheet()
+        self.spell = None
+        self.spell_life = 0
 
     def init_sprite_sheet(self):
 
@@ -70,14 +73,21 @@ class Player:
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, motion_type, facing, elapsed_time):
-
         self.motion_type = motion_type
         self.facing = facing
 
-        if (self.motion_type == MotionType.PRECAST) and (self.frame_index >= 29):
-            pass
+        if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
+            if not self.spell_life:
+                self.spell_life = 300
+                self.spell = Spell(self.renderer, "fireball", self.facing)
         else:
             self.frame_index += 1
+
+        if self.spell_life:
+            self.spell_life -= 1
+            self.spell.update(elapsed_time)
+        else:
+            self.spell = None
 
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
@@ -114,3 +124,5 @@ class Player:
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
+        if self.spell_life:
+            self.spell.draw()
