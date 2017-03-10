@@ -28,7 +28,6 @@ class Inventory:
         self.menu_text = {0: self.left_hand["name"], 1: self.left_hand["description"]}
         self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 8, (300, 200), Colors.BLACK)
 
-
     def update(self, elapsed_time):
         pass
 
