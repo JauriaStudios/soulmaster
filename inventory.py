@@ -25,13 +25,13 @@ class Inventory:
         self.left_hand = self.db.get_item_by_id(self.left_hand_id)
         print(self.left_hand)
 
-        self.menu_text = {0: self.left_hand["name"], 1: self.left_hand["description"]}
-        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 8, (300, 200), Colors.BLACK)
+        self.inv_text = {0: self.left_hand["name"], 1: self.left_hand["description"]}
+        self.inv_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 16, (300, 200), Colors.BLACK, "GlametrixBold.otf")
 
     def update(self, elapsed_time):
         pass
 
     def draw(self):
-        menu_text = self.menu_text
+        inv_text = self.inv_text
 
-        self.menu_dialog.draw(menu_text)
+        self.inv_dialog.draw(inv_text)

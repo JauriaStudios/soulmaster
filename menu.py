@@ -37,7 +37,7 @@ class Menu:
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 32, (300, 200), Colors.BLACK)
+        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 32, (300, 200), Colors.BLACK, "04B_20__.TTF")
 
     def update(self, elapsed_time):
         pass
