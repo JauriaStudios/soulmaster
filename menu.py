@@ -9,7 +9,7 @@ from input import Input
 from ui import Dialog
 from game import Game
 
-FPS = 60  # units.FPS
+FPS = 30  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 RESOURCES = Resources(__file__, 'resources')
 
