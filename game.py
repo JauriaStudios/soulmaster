@@ -8,8 +8,9 @@ import logging
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-import sdl2.ext
+from sdl2 import SDL_Quit, SDL_GetTicks, SDL_KEYUP, SDL_KEYDOWN, SDL_QUIT,SDL_Delay
+from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE
+from sdl2.ext import Resources, get_events
 
 from const import WindowSize
 from input import Input
@@ -28,12 +29,12 @@ logger.setLevel(logging.INFO)
 FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 
-RESOURCES = sdl2.ext.Resources(__file__, 'resources')
-MAPS = sdl2.ext.Resources(__file__, 'resources', 'maps')
+RESOURCES = Resources(__file__, 'resources')
+MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
-    def __init__(self, window):
+    def __init__(self, window, renderer):
 
         self.db = DataBase()
 
@@ -42,14 +43,14 @@ class Game(object):
         self.running = False
         self.window = window
         self.window_size = window.size
-        self.sdl_renderer = window.renderer
+        self.sdl_renderer = renderer
 
-        self.map_renderer = TiledRenderer(map_file, self.sdl_renderer)
+        self.map_renderer = TiledRenderer(map_file, self.window, self.sdl_renderer)
 
         self.player = Player(self.sdl_renderer)
 
         self.all_npc = []
-        self.init_npc("debug_room")
+        self.init_npc("Debug Room")
 
         self.doombat = Enemy(self.sdl_renderer, "doombat")
 
@@ -66,11 +67,15 @@ class Game(object):
 
     def init_npc(self, map):
 
-        all_npc_names = self.db.get_all_npc()
+        map_data = self.db.get_map_npc(map)
 
-        for data in all_npc_names:
-            npc = NPC(self.window, data)
-            self.all_npc.append(npc)
+        map_npc = []
+
+        for data in map_data:
+            map_npc.append(data["npc"])
+
+        for npc in map_npc:
+            self.all_npc.append(NPC(self.window, self.sdl_renderer, npc))
 
     def update(self, position, elapsed_time):
         for npc in self.all_npc:
@@ -121,7 +126,7 @@ class Game(object):
             start_time = SDL_GetTicks()  # units.MS
 
             game_input.begin_new_frame()
-            game_events = sdl2.ext.get_events()
+            game_events = get_events()
 
             for event in game_events:
                 if event.type == SDL_KEYDOWN:
@@ -187,7 +192,7 @@ class Game(object):
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            self.update(player_pos, min(elapsed_time, MAX_FRAME_TIME));
+            self.update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
             self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
             self.player_update(motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))

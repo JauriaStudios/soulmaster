@@ -2,20 +2,21 @@
 
 import sys
 import os
+import json
 
 # If we're on Windows, use the included compiled DLLs.
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-import sdl2.ext
+from sdl2 import SDL_Rect, SDL_RenderCopy
+from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize, Colors
 from utils import Timer, dice
 from db import DataBase
 from ui import Dialog
 
-RESOURCES = sdl2.ext.Resources(__file__, 'resources')
+RESOURCES = Resources(__file__, 'resources')
 
 
 class MotionType:
@@ -37,7 +38,7 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, window, data):
+    def __init__(self, window, renderer, json_data):
 
         self.dialog_timer = Timer(10000, activated=True)
         self.close_dialog_timer = Timer(10000)
@@ -45,11 +46,17 @@ class NPC:
         self.db = DataBase()
 
         self.window = window
-        self.renderer = window.renderer
+        self.renderer = renderer
+
+        data = json.loads(json_data)
 
         self.name = data["name"]
-        self.level = data["level"]
-        self.quest = data["quest"]
+        self.start_pos = data["start_pos"]
+
+        self.npc_data = self.db.get_npc(self.name)
+
+        self.level = self.npc_data["level"]
+        self.quest = self.npc_data["quest"]
         self.sprite_size = 128
         self.position = [0, 0]
         self.movement = [0, 0]
@@ -61,8 +68,8 @@ class NPC:
             RESOURCES.get_path("{0}_walking.png".format(self.name))
         ]
 
-        self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE,
+        self.factory = SpriteFactory(
+            TEXTURE,
             renderer=self.renderer
         )
 
@@ -170,8 +177,8 @@ class NPC:
         sprite = self.sprite_sheets[motion_type]
         sprite_size = self.sprite_size
 
-        x = int(((WindowSize.WIDTH / 2) + position[0] + movement[0]) - (sprite_size / 2))
-        y = int(((WindowSize.HEIGHT / 2) + position[1] + movement[1]) - (sprite_size / 2))
+        x = int((int(self.start_pos[0]) + position[0] + movement[0]) - (sprite_size / 2))
+        y = int((int(self.start_pos[1]) + position[1] + movement[1]) - (sprite_size / 2))
 
         src_rect = SDL_Rect()
 
@@ -187,7 +194,7 @@ class NPC:
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 
-        render.SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
         self.dialog_draw((x, y))
 
@@ -199,7 +206,7 @@ class NPC:
             self.dialog_timer.reset()
             self.close_dialog_timer.activate()
             self.msg = dice(len(self.dialogs) - 1)
-            self.dialog_box = Dialog(self.window, Colors.WHITHE, 16, (10, 400), Colors.BLACK)
+            self.dialog_box = Dialog(self.window, self.renderer, Colors.WHITE, 16, (10, 400), Colors.BLACK)
 
         self.close_dialog_timer.update()
 

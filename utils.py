@@ -6,7 +6,7 @@ from random import randint
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
+from sdl2 import SDL_GetTicks
 
 
 def dict_factory(cursor, row):
@@ -36,7 +36,7 @@ class Timer:
 
     def update(self):
         if self.activated:
-            self.current_ticks = timer.SDL_GetTicks()
+            self.current_ticks = SDL_GetTicks()
             self.current_ticks -= self.start_ticks
             if self.current_ticks - self.previous_ticks >= self.interval:
                 self.previous_ticks = self.current_ticks
@@ -50,5 +50,5 @@ class Timer:
         self.enabled = False
 
     def activate(self):
-        self.start_ticks = timer.SDL_GetTicks()
+        self.start_ticks = SDL_GetTicks()
         self.activated = True

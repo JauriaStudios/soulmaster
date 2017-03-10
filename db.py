@@ -8,12 +8,11 @@ import sqlite3
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-import sdl2.ext
+from sdl2.ext import Resources
 
 from utils import dict_factory
 
-DB = sdl2.ext.Resources(__file__, 'resources', 'db')
+DB = Resources(__file__, 'resources', 'db')
 
 
 class DataBase:
@@ -36,11 +35,22 @@ class DataBase:
             cursor.execute('SELECT * FROM npc WHERE name = ?', (name,))
             query = cursor.fetchone()
 
+        return query
+
     def get_npc_dialog(self, name):
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = dict_factory
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM dialogs WHERE npc = ?', (name,))
+            query = cursor.fetchall()
+
+        return query
+
+    def get_map_npc(self, map):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM map WHERE name = ?', (map,))
             query = cursor.fetchall()
 
         return query

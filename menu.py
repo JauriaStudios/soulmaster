@@ -7,8 +7,9 @@ import sys
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-from sdl2 import *
-import sdl2.ext
+from sdl2 import SDL_Delay, SDL_GetTicks, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT, SDL_Rect, SDL_RenderCopy
+from sdl2 import SDLK_ESCAPE, SDLK_UP, SDLK_DOWN, SDLK_RETURN
+from sdl2.ext import Resources, SpriteFactory, TEXTURE, get_events
 import sdl2.sdlttf
 
 from const import WindowSize, Colors
@@ -18,20 +19,20 @@ from game import Game
 
 FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
-RESOURCES = sdl2.ext.Resources(__file__, 'resources')
+RESOURCES = Resources(__file__, 'resources')
 
 
 class Menu:
-    def __init__(self, window):
+    def __init__(self, window, renderer):
         self.window = window
-        self.renderer = window.renderer
-        self.sdl_renderer = window.renderer.renderer
+        self.renderer = renderer
+        self.sdl_renderer = renderer.renderer
 
         self.menu_bg = RESOURCES.get_path("menu_bg.png")
         self.menu_cursor = RESOURCES.get_path("menu_cursor.png")
 
-        self.factory = sdl2.ext.SpriteFactory(
-            sdl2.ext.TEXTURE,
+        self.factory = SpriteFactory(
+            TEXTURE,
             renderer=self.renderer
         )
 
@@ -44,7 +45,7 @@ class Menu:
         self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, Colors.WHITHE, 32, (300, 200), Colors.BLACK)
+        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 32, (300, 200), Colors.BLACK)
 
     def update(self, elapsed_time):
         pass
@@ -59,7 +60,7 @@ class Menu:
             start_time = SDL_GetTicks()  # units.MS
 
             menu_input.begin_new_frame()
-            menu_events = sdl2.ext.get_events()
+            menu_events = get_events()
 
             for event in menu_events:
                 if event.type == SDL_KEYDOWN:
@@ -134,16 +135,16 @@ class Menu:
 
         self.renderer.clear()
 
-        render.SDL_RenderCopy(renderer, menu_bg.texture, None, bg_dest_rect)
+        SDL_RenderCopy(renderer, menu_bg.texture, None, bg_dest_rect)
 
         self.menu_dialog.draw(menu_text)
 
-        render.SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
+        SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
 
         self.renderer.present()
 
     def launch_debug(self):
-        game = Game(self.window)
+        game = Game(self.window, self.renderer)
         game.run()
 
         self.running = True

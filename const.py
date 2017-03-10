@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sdl2 import pixels
 
 
@@ -8,5 +7,6 @@ class WindowSize:
 
 
 class Colors:
-    WHITHE = pixels.SDL_Color(255, 255, 255)
+    WHITE = pixels.SDL_Color(255, 255, 255)
     BLACK = pixels.SDL_Color(0, 0, 0)
+    RED = pixels.SDL_Color(255, 0, 0)

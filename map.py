@@ -2,33 +2,43 @@
 
 import os
 import sys
+from math import sqrt
 
 # If we're on Windows, use the included compiled DLLs.
 if sys.platform == "win32":
     os.environ["PYSDL2_DLL_PATH"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'libs')
 
-import sdl2
-import sdl2.ext
+from sdl2 import SDL_RenderCopyEx, SDL_Rect
+from sdl2.ext import line
 
 from pytmx import *
 from pytmx.util_pysdl2 import load_pysdl2
 
-from const import WindowSize
+from const import WindowSize, Colors
 
 
-class TiledRenderer(object):
-    def __init__(self, filename, renderer):
-        tm = load_pysdl2(renderer, filename)
+class TiledRenderer:
+    def __init__(self, filename, window, renderer):
+
+        self.window = window
+        self.renderer = renderer
+
+        tm = load_pysdl2(self.renderer, filename)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
-        self.renderer = renderer
         self.pos = (0, 0)
+
+        self.blocking_elements = []
 
         logger.info("Objects in map:")
         for obj in self.tmx_data.objects:
             logger.info(obj)
+            logger.info("BLOCK\t{0}".format(obj.points))
             for k, v in obj.properties.items():
-                logger.info("{0}\t{1}".format(k, v))
+                logger.info("PROPS\t{0}\t{1}".format(k, v))
+                if (k == "block") and (v == "true"):
+                    logger.info("FOUND BLOCK")
+                    self.blocking_elements.append(obj)
 
         logger.info("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
@@ -45,15 +55,14 @@ class TiledRenderer(object):
         th = self.tmx_data.tileheight
         pos = self.pos
 
-        dest = sdl2.rect.SDL_Rect(0, 0, tw, th + 96)
-        rce = sdl2.SDL_RenderCopyEx
+        dest = SDL_Rect(0, 0, tw, th + 96)
+        rce = SDL_RenderCopyEx
 
         background = layer.properties['background']
 
         # iterate over the tiles in the layer
         if (background == "true") and (level == "back"):
             for x, y, tile in layer.tiles():
-
                 texture, src, flip = tile
 
                 dest.x = int(((x - y) * tw / 2) + window_x / 2) + pos[0]
@@ -94,6 +103,20 @@ class TiledRenderer(object):
             if isinstance(layer, TiledTileLayer):
                 self.render_tile_layer(layer, level)
 
+        # self.draw_blocking_elements()
+
     def update(self, position, elapsed_time):
         self.pos = position
 
+    def draw_blocking_elements(self):
+
+        surf = self.window.get_surface()
+        color = Colors.RED
+        points = []
+
+        for block in self.blocking_elements:
+            for lines in block.points:
+                points.append(round(lines[0]) + self.pos[0])
+                points.append(round(lines[1]) + self.pos[1])
+
+        line(surf, color, points)
