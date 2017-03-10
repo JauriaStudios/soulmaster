@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from sdl2 import SDL_Rect, SDL_RenderCopy
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
 from spell import Spell
+from db import DataBase
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -30,6 +33,9 @@ class Facing:
 
 class Player:
     def __init__(self, renderer):
+
+        self.db = DataBase()
+
         self.renderer = renderer
 
         self.sprite_size = 128
@@ -60,6 +66,19 @@ class Player:
         self.init_sprite_sheet()
         self.spell = None
         self.spell_life = 0
+
+        self.inventory = self.db.get_player_inventory()
+
+        self.equipped = json.loads(self.inventory["equipped"])
+
+        self.left_hand_id = self.equipped["left_hand"]
+
+        self.left_hand = self.db.get_item_by_id(self.left_hand_id)
+
+        print(self.left_hand)
+
+
+
 
     def init_sprite_sheet(self):
 
