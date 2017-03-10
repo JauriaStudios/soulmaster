@@ -4,6 +4,7 @@ from sdl2 import SDL_Rect, SDL_RenderCopy
 from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
+from utils import dice
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -78,10 +79,12 @@ class Enemy:
             self.frame_index = 0
 
         if not self.moving:
-            if randint(0, 200) == 200:
+            move = dice(200)
+            if move[0] == 200:
                 self.moving = True
                 self.walk_frames = 60
-                self.facing = randint(0, 7)
+                facing = dice(7)
+                self.facing = facing[0]
 
         if self.moving:
             if self.walk_frames:
