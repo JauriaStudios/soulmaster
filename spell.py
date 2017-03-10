@@ -37,7 +37,6 @@ class Spell:
         self.sprite_sheet = self.factory.from_image(self.sprites)
 
         self.facing = int_map(player_facing, 0, 7, 7, 0)
-        print(self.facing)
         self.last_facing = self.facing
 
         self.frame_index = 0
