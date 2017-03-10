@@ -22,17 +22,17 @@ class TiledRenderer:
 
         self.blocking_elements = []
 
-        logger.info("Objects in map:")
+        print("Objects in map:")
         for obj in self.tmx_data.objects:
-            logger.info(obj)
-            logger.info("BLOCK\t{0}".format(obj.points))
+            print(obj)
+            print("BLOCK\t{0}".format(obj.points))
             for k, v in obj.properties.items():
-                logger.info("PROPS\t{0}\t{1}".format(k, v))
+                print("PROPS\t{0}\t{1}".format(k, v))
                 if (k == "block") and (v == "true"):
-                    logger.info("FOUND BLOCK")
+                    print("FOUND BLOCK")
                     self.blocking_elements.append(obj)
 
-        logger.info("GID (tile) properties:")
+        print("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
             logger.info("{0}\t{1}".format(k, v))
 
