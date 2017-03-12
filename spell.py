@@ -38,6 +38,7 @@ class Spell:
 
         self.facing = int_map(player_facing, 0, 7, 7, 0)
         self.last_facing = self.facing
+        self.facing_position = [0, 0]
 
         self.frame_index = 0
         self.speed = [0, 0]
@@ -49,23 +50,39 @@ class Spell:
         if self.facing == Facing.LEFT_DOWN:
             self.speed[0] -= 2
             self.speed[1] += 1
+            self.facing_position[0] = -50
+            self.facing_position[1] = 20
         elif self.facing == Facing.DOWN:
             self.speed[1] += 1
+            self.facing_position[0] = 0
+            self.facing_position[1] = 60
         elif self.facing == Facing.RIGHT_DOWN:
             self.speed[0] += 2
             self.speed[1] += 1
+            self.facing_position[0] = 50
+            self.facing_position[1] = 20
         elif self.facing == Facing.RIGHT:
             self.speed[0] += 2
+            self.facing_position[0] = 60
+            self.facing_position[1] = 5
         elif self.facing == Facing.RIGHT_UP:
             self.speed[0] += 2
             self.speed[1] -= 1
+            self.facing_position[0] = 50
+            self.facing_position[1] = -20
         elif self.facing == Facing.UP:
             self.speed[1] -= 1
+            self.facing_position[0] = 0
+            self.facing_position[1] = 0
         elif self.facing == Facing.LEFT_UP:
             self.speed[0] -= 2
             self.speed[1] -= 1
+            self.facing_position[0] = -50
+            self.facing_position[1] = -20
         elif self.facing == Facing.LEFT:
             self.speed[0] -= 2
+            self.facing_position[0] = -60
+            self.facing_position[1] = 5
 
         if self.facing != self.last_facing:
             self.frame_index = 0
@@ -79,6 +96,7 @@ class Spell:
 
         renderer = self.renderer.renderer
         facing = self.facing
+        facing_position = self.facing_position
         frame_index = self.frame_index
         speed = self.speed
 
@@ -94,8 +112,8 @@ class Spell:
 
         dest_rect = SDL_Rect()
 
-        dest_rect.x = int((WindowSize.WIDTH / 2) + speed[0])
-        dest_rect.y = int((WindowSize.HEIGHT / 2) + speed[1])
+        dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2) + speed[0] + facing_position[0])
+        dest_rect.y = int((WindowSize.HEIGHT / 2) - (sprite_size / 2) + speed[1] + facing_position[1])
         dest_rect.w = sprite_size
         dest_rect.h = sprite_size
 

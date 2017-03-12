@@ -62,6 +62,7 @@ class Player:
 
         self.init_sprite_sheet()
         self.spell = None
+        self.spell_max_life = 100
         self.spell_life = 0
 
         self.inventory = None
@@ -84,7 +85,7 @@ class Player:
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:
-                self.spell_life = 300
+                self.spell_life = self.spell_max_life
                 self.spell = Spell(self.renderer, "fireball", self.facing)
         else:
             self.frame_index += 1
@@ -108,6 +109,9 @@ class Player:
             self.inventory.update(elapsed_time)
 
     def draw(self):
+
+        if self.spell_life:
+            self.spell.draw()
 
         renderer = self.renderer.renderer
         motion_type = self.motion_type
@@ -133,8 +137,6 @@ class Player:
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
 
-        if self.spell_life:
-            self.spell.draw()
 
         if self.inventory:
             self.inventory.draw()
