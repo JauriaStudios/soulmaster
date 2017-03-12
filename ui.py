@@ -176,7 +176,6 @@ class Dialog:
         max_chars = self.max_chars
         lines = self.lines
         tile_size = 16
-        print(lines)
 
         width = self.text_size * max_chars
         height = self.text_size * lines
@@ -233,3 +232,5 @@ class Dialog:
 
         return self.window_sprites
 
+    def text_sprites(self):
+        pass

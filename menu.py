@@ -32,7 +32,9 @@ class Menu:
         self.background_spite = self.factory.from_image(self.menu_bg)
         self.cursor_sprite = self.factory.from_image(self.menu_cursor)
 
-        self.text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
+        self.text = {0: "START",
+                     1: "OPTIONS",
+                     2: "EXIT"}
 
         self.dialog = Dialog(self.window,
                              self.renderer,
@@ -102,10 +104,7 @@ class Menu:
             last_update_time = current_time
 
             self.renderer.render(self.sprites)
-
             self.world.process()
-
-            self.window.refresh()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS
