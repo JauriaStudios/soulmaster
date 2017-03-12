@@ -5,6 +5,7 @@ from sdl2.ext import Resources, SpriteFactory, TEXTURE
 
 from const import WindowSize
 from spell import Spell
+from inventory import Inventory
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -29,7 +30,9 @@ class Facing:
 
 
 class Player:
-    def __init__(self, renderer):
+    def __init__(self, window, renderer):
+
+        self.window = window
         self.renderer = renderer
 
         self.sprite_size = 128
@@ -60,6 +63,9 @@ class Player:
         self.init_sprite_sheet()
         self.spell = None
         self.spell_life = 0
+
+        self.inventory = None
+
 
     def init_sprite_sheet(self):
 
@@ -98,6 +104,9 @@ class Player:
         self.last_facing = self.facing
         self.last_motion_type = self.motion_type
 
+        if self.inventory:
+            self.inventory.update(elapsed_time)
+
     def draw(self):
 
         renderer = self.renderer.renderer
@@ -126,3 +135,17 @@ class Player:
 
         if self.spell_life:
             self.spell.draw()
+
+        if self.inventory:
+            self.inventory.draw()
+
+    def toggle_inventory(self):
+
+        if self.inventory:
+            self.inventory = None
+        else:
+            window = self.window
+            renderer = self.renderer
+            self.inventory = Inventory(window, renderer)
+
+

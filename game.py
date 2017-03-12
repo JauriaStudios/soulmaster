@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sdl2 import SDL_Quit, SDL_GetTicks, SDL_KEYUP, SDL_KEYDOWN, SDL_QUIT,SDL_Delay
-from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE
+from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE, SDLK_i
 from sdl2.ext import Resources, get_events
 
 from const import WindowSize
@@ -33,7 +33,7 @@ class Game(object):
 
         self.map_renderer = TiledRenderer(map_file, self.window, self.sdl_renderer)
 
-        self.player = Player(self.sdl_renderer)
+        self.player = Player(self.window, self.sdl_renderer)
 
         self.all_npc = []
         self.init_npc("Debug Room")
@@ -166,6 +166,9 @@ class Game(object):
                 player_pos[1] -= speed_y
                 motion_type = MotionType.WALKING
                 facing = Facing.DOWN
+
+            elif game_input.was_key_pressed(SDLK_i):
+                self.player.toggle_inventory()
 
             # Player Attack
             elif game_input.is_key_held(SDLK_SPACE):

@@ -48,3 +48,21 @@ class DataBase:
             query = cursor.fetchall()
 
         return query
+
+    def get_player_inventory(self):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM inventory')
+            query = cursor.fetchone()
+
+        return query
+
+    def get_item_by_id(self, id):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM items WHERE id = ?', (id,))
+            query = cursor.fetchone()
+
+        return query

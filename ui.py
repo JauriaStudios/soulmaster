@@ -11,7 +11,7 @@ FONTS = Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog:
-    def __init__(self, window, renderer, text_color, text_size, text_position, dialog_color):
+    def __init__(self, window, renderer, text_color, text_size, text_position, dialog_color, font):
         TTF_Init()
 
         self.window = window
@@ -23,7 +23,7 @@ class Dialog:
         self.text_position = text_position
         self.dialog_color = dialog_color
 
-        self.font_path = FONTS.get_path("04B_20__.TTF")
+        self.font_path = FONTS.get_path(font)
 
         self.image = None
 
