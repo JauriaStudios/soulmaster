@@ -20,7 +20,7 @@ MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
-    def __init__(self, window, renderer):
+    def __init__(self, window, world, renderer):
 
         self.db = DataBase()
 
@@ -29,16 +29,17 @@ class Game(object):
         self.running = False
         self.window = window
         self.window_size = window.size
-        self.sdl_renderer = renderer
+        self.world = world
+        self.renderer = renderer
 
-        self.map_renderer = TiledRenderer(map_file, self.window, self.sdl_renderer)
+        self.map_renderer = TiledRenderer(map_file, self.window, self.renderer)
 
-        self.player = Player(self.window, self.sdl_renderer)
+        self.player = Player(self.window, self.renderer)
 
         self.all_npc = []
         self.init_npc("Debug Room")
 
-        self.doombat = Enemy(self.sdl_renderer, "doombat")
+        self.doombat = Enemy(self.renderer, "doombat")
 
         self.entities = [
             self.player,
@@ -61,7 +62,7 @@ class Game(object):
             map_npc.append(data["npc"])
 
         for npc in map_npc:
-            self.all_npc.append(NPC(self.window, self.sdl_renderer, npc))
+            self.all_npc.append(NPC(self.window, self.renderer, npc))
 
     def update(self, position, elapsed_time):
         for npc in self.all_npc:
@@ -77,7 +78,7 @@ class Game(object):
         self.doombat.update(pos, elapsed_time)
 
     def draw(self):
-        self.sdl_renderer.clear()
+        self.renderer.clear()
 
         self.map_renderer.render_map("back")
         self.map_renderer.render_map("up")
@@ -91,7 +92,7 @@ class Game(object):
 
         self.map_renderer.render_map("down")
 
-        self.sdl_renderer.present()
+        self.renderer.present()
 
     def run(self):
 

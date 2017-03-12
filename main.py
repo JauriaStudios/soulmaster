@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_RENDERER_ACCELERATED, SDL_Init, SDL_INIT_EVERYTHING, SDL_Rect, SDL_RenderCopyEx, SDL_FLIP_NONE, \
+from sdl2 import SDL_Rect, SDL_RenderCopyEx, SDL_FLIP_NONE, \
     SDL_RenderPresent
 from sdl2.ext import Window, Renderer, fill, SoftwareSpriteRenderSystem, TextureSpriteRenderSystem, Color, SDLError\
     , init, World, SOFTWARE, TEXTURE, SpriteFactory
@@ -74,14 +74,14 @@ def main():
     world = World()
 
     # Set up our renderer.
-    spriterenderer = None
+    sprite_renderer = None
     texture_renderer = None
 
     if RENDERER == "software":
-        spriterenderer = SoftwareRenderer(window)
+        sprite_renderer = SoftwareRenderer(window)
     elif RENDERER == "texture":
         texture_renderer = Renderer(window)
-        spriterenderer = TextureRenderer(texture_renderer)
+        sprite_renderer = TextureRenderer(texture_renderer)
 
     # Create our paddle sprites from our sprite factory.
     factory = None
@@ -90,7 +90,7 @@ def main():
     elif RENDERER == "texture":
         factory = SpriteFactory(TEXTURE, renderer=texture_renderer)
 
-    renderer = spriterenderer
+    renderer = sprite_renderer
 
     menu = Menu(window, world, renderer, factory)
     menu.run()

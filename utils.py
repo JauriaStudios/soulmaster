@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from random import randint
+from random import randrange
 
 from sdl2 import SDL_GetTicks
 
@@ -19,7 +19,7 @@ def dict_factory(cursor, row):
 def dice(dice_faces, num=1):
     results = []
     for i in range(num):
-        result = randint(0, dice_faces)
+        result = randrange(0, dice_faces)
         results.append(result)
 
     return results

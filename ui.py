@@ -2,7 +2,7 @@
 
 from sdl2 import SDL_ClearError, SDL_CreateTextureFromSurface, SDL_FreeSurface, SDL_RenderCopy, SDL_Rect
 from sdl2.sdlttf import TTF_Init, TTF_Quit, TTF_RenderText_Blended, TTF_OpenFont, TTF_CloseFont
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2.ext import Resources
 
 from const import Colors, WindowSize
 
@@ -11,12 +11,12 @@ FONTS = Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog:
-    def __init__(self, window, renderer, text_color, text_size, text_position, dialog_color, font):
+    def __init__(self, window, renderer, factory, text_color, text_size, text_position, dialog_color, font):
         TTF_Init()
 
         self.window = window
         self.window_size = window.size
-        self.sdl_renderer = renderer
+        self.renderer = renderer
 
         self.text_color = text_color
         self.text_size = text_size
@@ -27,13 +27,12 @@ class Dialog:
 
         self.image = None
 
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.sdl_renderer
-        )
+        self.factory = factory
 
-        border_image_path = RESOURCES.get_path("dialog_border.png")
-        self.border = self.factory.from_image(border_image_path)
+        window_image_path = RESOURCES.get_path("dialog_border.png")
+        self.window_sprite = self.factory.from_image(window_image_path)
+        self.window_sprites = []
+
         self.bg = None
 
     def __del__(self):
@@ -54,7 +53,7 @@ class Dialog:
             TTF_CloseFont(font)
             return None
 
-        texture = SDL_CreateTextureFromSurface(self.sdl_renderer.renderer,
+        texture = SDL_CreateTextureFromSurface(self.renderer,
                                                surf)
 
         if texture is None:
@@ -66,22 +65,51 @@ class Dialog:
         return texture
 
     def draw(self, messages, text_position=None):
+
+        renderer = self.renderer
+
         if text_position:
             self.text_position = text_position
 
         chars = []
         for (index, text) in messages.items():
             i = 0
-            for char in text:
+            for _ in text:
                 i += 1
             chars.append(i)
 
-        width = (self.text_size * max(chars))
+        max_chars = max(chars)
+
+        width = (self.text_size * max_chars)
         height = self.text_size
         x = self.text_position[0]
         y = self.text_position[1]
 
-        renderer = self.sdl_renderer.renderer
+        self.draw_border(chars)
+
+        for (index, text) in messages.items():
+            self.image = self.render_text(text,
+                                          self.font_path,
+                                          self.text_color,
+                                          self.text_size)
+
+            text_dest = SDL_Rect(x, (y + (self.text_size * index)))
+            text_dest.w = self.text_size * chars[index]
+            text_dest.h = height
+
+            SDL_RenderCopy(renderer,
+                           self.image,
+                           None,
+                           text_dest)
+
+    def draw_border(self, chars):
+
+        width = (self.text_size * chars)
+        height = self.text_size
+        x = self.text_position[0]
+        y = self.text_position[1]
+
+        renderer = self.renderer
 
         self.bg = self.factory.from_color(Colors.BLACK,
                                           size=(width, height))
@@ -89,7 +117,7 @@ class Dialog:
         bg_dest = SDL_Rect(x - 16,
                            y - 16,
                            width + 32,
-                           height * len(messages.items()) + 32)
+                           height + 32)
 
         SDL_RenderCopy(renderer,
                        self.bg.texture,
@@ -100,7 +128,7 @@ class Dialog:
         border_dest = SDL_Rect(0, 0, 16, 16)
 
         cols = int(width / 16) + 3
-        rows = int(height / 16) * len(messages.items()) + 3
+        rows = int(height / 16) * chars + 3
 
         for i in range(cols + 1):
             for j in range(rows + 1):
@@ -140,17 +168,61 @@ class Dialog:
                                border_src,
                                border_dest)
 
-        for (index, text) in messages.items():
-            self.image = self.render_text(text,
-                                          self.font_path,
-                                          self.text_color,
-                                          self.text_size)
+    def window_border_sprites(self):
 
-            text_dest = SDL_Rect(x, (y + (self.text_size * index)))
-            text_dest.w = self.text_size * chars[index]
-            text_dest.h = height
+        max_chars = 5
+        tile_size = 16
 
-            SDL_RenderCopy(renderer,
-                           self.image,
-                           None,
-                           text_dest)
+        width = self.text_size * max_chars
+        height = self.text_size
+
+        x = self.text_position[0]
+        y = self.text_position[1]
+
+        window_background = self.factory.from_color(Colors.BLACK, size=(width + 32, height * max_chars + 32))
+        window_background.position = x - 16, y - 16
+
+        self.window_sprites.append(window_background)
+
+        cols = int(width / tile_size) + 3
+        rows = int(height / tile_size) * max_chars + 3
+
+        border_crop = [0, 0, tile_size, tile_size]
+
+        for i in range(cols + 1):
+            for j in range(rows + 1):
+                if (i == 0) and (j == 0):
+                    border_crop[0] = 0
+                    border_crop[1] = 0
+                elif (i < cols) and (j == 0):
+                    border_crop[0] = 16
+                    border_crop[1] = 0
+                elif (i == cols) and (j == 0):
+                    border_crop[0] = 32
+                    border_crop[1] = 0
+                elif (i == cols) and (j < rows):
+                    border_crop[0] = 32
+                    border_crop[1] = 16
+                elif (i == 0) and (j < rows):
+                    border_crop[0] = 0
+                    border_crop[1] = 16
+                elif (i == 0) and (j == rows):
+                    border_crop[0]= 0
+                    border_crop[1] = 32
+                elif (i < cols) and (j == rows):
+                    border_crop[0] = 16
+                    border_crop[1] = 32
+                elif (i == cols) and (j == rows):
+                    border_crop[0] = 32
+                    border_crop[1] = 32
+                else:
+                    border_crop[0] = 16
+                    border_crop[1] = 16
+
+                sprite = self.window_sprite.subsprite(border_crop)
+                sprite.position = (16 * i) + (x - 32), (16 * j) + (y - 32)
+
+                self.window_sprites.append(sprite)
+
+        return self.window_sprites
+

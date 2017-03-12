@@ -2,14 +2,14 @@
 
 from sdl2 import SDL_Delay, SDL_GetTicks, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT, SDL_Rect, SDL_RenderCopy
 from sdl2 import SDLK_ESCAPE, SDLK_UP, SDLK_DOWN, SDLK_RETURN
-from sdl2.ext import Resources, SpriteFactory, TEXTURE, get_events
+from sdl2.ext import Resources, get_events
 
 from const import WindowSize, Colors
 from input import Input
 from ui import Dialog
 from game import Game
 
-FPS = 30  # units.FPS
+FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 RESOURCES = Resources(__file__, 'resources')
 
@@ -32,18 +32,22 @@ class Menu:
         self.background_spite = self.factory.from_image(self.menu_bg)
         self.cursor_sprite = self.factory.from_image(self.menu_cursor)
 
-        self.sprites = self.background_spite, self.cursor_sprite
+        self.text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
+        self.dialog = Dialog(self.window, self.renderer, self.factory, Colors.WHITE, 32, (300, 200),
+                             Colors.BLACK, "04B_20__.TTF")
 
-        self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, self.renderer, self.factory, Colors.WHITE, 32, (300, 200),
-                                  Colors.BLACK, "04B_20__.TTF")
+        self.border_sprites = self.dialog.window_border_sprites()
+
+        self.sprites = [self.background_spite, self.cursor_sprite]
+
+        for sprite in self.border_sprites:
+            self.sprites.append(sprite)
 
     def update(self, elapsed_time):
-        self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1]\
+        self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
                                       + self.cursor_position * self.cursor_sprite_size
 
     def run(self):
-
         menu_input = Input()
 
         last_update_time = SDL_GetTicks()  # units.MS
@@ -81,7 +85,7 @@ class Menu:
             elif menu_input.was_key_pressed(SDLK_RETURN):
                 self.running = False
                 if self.cursor_position == 0:
-                    self.launch_debug()
+                    self.launch_game()
 
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
@@ -90,9 +94,11 @@ class Menu:
 
             last_update_time = current_time
 
-            self.draw()
+            self.renderer.render(self.sprites)
+
             self.world.process()
-            #self.window.refresh()
+
+            self.window.refresh()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS
@@ -100,11 +106,8 @@ class Menu:
             if elapsed_time < ms_per_frame:
                 SDL_Delay(ms_per_frame - elapsed_time)
 
-    def draw(self):
-        self.renderer.render(self.sprites)
-
-    def launch_debug(self):
-        game = Game(self.window, self.renderer)
+    def launch_game(self):
+        game = Game(self.window, self.world, self.renderer)
         game.run()
 
         self.running = True
