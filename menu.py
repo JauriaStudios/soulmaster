@@ -33,10 +33,17 @@ class Menu:
         self.cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.dialog = Dialog(self.window, self.renderer, self.factory, Colors.WHITE, 32, (300, 200),
-                             Colors.BLACK, "04B_20__.TTF")
 
-        self.border_sprites = self.dialog.window_border_sprites()
+        self.dialog = Dialog(self.window,
+                             self.renderer,
+                             self.factory,
+                             self.text,
+                             Colors.WHITE,
+                             32,
+                             (300, 200),
+                             "04B_20__.TTF")
+
+        self.border_sprites = self.dialog.decoration_sprites()
 
         self.sprites = [self.background_spite, self.cursor_sprite]
 

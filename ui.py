@@ -5,23 +5,26 @@ from sdl2.sdlttf import TTF_Init, TTF_Quit, TTF_RenderText_Blended, TTF_OpenFont
 from sdl2.ext import Resources
 
 from const import Colors, WindowSize
+from utils import count_chars
 
 RESOURCES = Resources(__file__, 'resources', 'ui')
 FONTS = Resources(__file__, 'resources', 'fonts')
 
 
 class Dialog:
-    def __init__(self, window, renderer, factory, text_color, text_size, text_position, dialog_color, font):
+    def __init__(self, window, renderer, factory, text, text_color, text_size, text_position, font):
         TTF_Init()
 
         self.window = window
         self.window_size = window.size
         self.renderer = renderer
 
+        self.text = text
         self.text_color = text_color
         self.text_size = text_size
         self.text_position = text_position
-        self.dialog_color = dialog_color
+
+        self.lines, self.max_chars = count_chars(self.text)
 
         self.font_path = FONTS.get_path(font)
 
@@ -85,7 +88,7 @@ class Dialog:
         x = self.text_position[0]
         y = self.text_position[1]
 
-        self.draw_border(chars)
+        self.decoration_textures()
 
         for (index, text) in messages.items():
             self.image = self.render_text(text,
@@ -102,9 +105,9 @@ class Dialog:
                            None,
                            text_dest)
 
-    def draw_border(self, chars):
+    def decoration_textures(self):
 
-        width = (self.text_size * chars)
+        width = (self.text_size * self.max_chars)
         height = self.text_size
         x = self.text_position[0]
         y = self.text_position[1]
@@ -168,24 +171,28 @@ class Dialog:
                                border_src,
                                border_dest)
 
-    def window_border_sprites(self):
+    def decoration_sprites(self):
 
-        max_chars = 5
+        max_chars = self.max_chars
+        lines = self.lines
         tile_size = 16
+        print(lines)
 
         width = self.text_size * max_chars
-        height = self.text_size
+        height = self.text_size * lines
 
         x = self.text_position[0]
         y = self.text_position[1]
 
-        window_background = self.factory.from_color(Colors.BLACK, size=(width + 32, height * max_chars + 32))
-        window_background.position = x - 16, y - 16
+        window_background = self.factory.from_color(Colors.BLACK,
+                                                    size=(width + (tile_size * 2),
+                                                          height + (tile_size * 2)))
+        window_background.position = x - tile_size, y - tile_size
 
         self.window_sprites.append(window_background)
 
         cols = int(width / tile_size) + 3
-        rows = int(height / tile_size) * max_chars + 3
+        rows = int(height / tile_size) + 3
 
         border_crop = [0, 0, tile_size, tile_size]
 

@@ -5,6 +5,19 @@ from random import randrange
 from sdl2 import SDL_GetTicks
 
 
+def count_chars(text):
+    chars = []
+    i = 0
+    for k, v in text.items():
+        i += 1
+        j = 0
+        for _ in v:
+            j += 1
+        chars.append(j)
+
+    return i, max(chars)
+
+
 def int_map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
