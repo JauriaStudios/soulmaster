@@ -15,32 +15,32 @@ RESOURCES = Resources(__file__, 'resources')
 
 
 class Menu:
-    def __init__(self, window, renderer):
+    def __init__(self, window, world, renderer, factory):
         self.window = window
         self.renderer = renderer
-        self.sdl_renderer = renderer.renderer
+        self.world = world
+        self.factory = factory
 
         self.menu_bg = RESOURCES.get_path("menu_bg.png")
         self.menu_cursor = RESOURCES.get_path("menu_cursor.png")
 
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
-
         self.running = True
-
-        self.cursor_position = [0, 0]
+        self.cursor_start_position = 100, 200
+        self.cursor_position = 0
         self.cursor_sprite_size = 64
 
-        self.menu_bg_sprite = self.factory.from_image(self.menu_bg)
-        self.menu_cursor_sprite = self.factory.from_image(self.menu_cursor)
+        self.background_spite = self.factory.from_image(self.menu_bg)
+        self.cursor_sprite = self.factory.from_image(self.menu_cursor)
+
+        self.sprites = self.background_spite, self.cursor_sprite
 
         self.menu_text = {0: "DEBUG ROOM", 1: "OPTIONS", 2: "EXIT"}
-        self.menu_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 32, (300, 200), Colors.BLACK, "04B_20__.TTF")
+        self.menu_dialog = Dialog(self.window, self.renderer, self.factory, Colors.WHITE, 32, (300, 200),
+                                  Colors.BLACK, "04B_20__.TTF")
 
     def update(self, elapsed_time):
-        pass
+        self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1]\
+                                      + self.cursor_position * self.cursor_sprite_size
 
     def run(self):
 
@@ -71,16 +71,16 @@ class Menu:
 
             # Move the cursor
             elif menu_input.was_key_pressed(SDLK_UP):
-                if self.cursor_position[1] != 0:
-                    self.cursor_position[1] -= 1
+                if self.cursor_position != 0:
+                    self.cursor_position -= 1
             elif menu_input.was_key_pressed(SDLK_DOWN):
-                if self.cursor_position[1] != 2:
-                    self.cursor_position[1] += 1
+                if self.cursor_position != 2:
+                    self.cursor_position += 1
 
             # Select option
             elif menu_input.was_key_pressed(SDLK_RETURN):
                 self.running = False
-                if self.cursor_position[1] == 0:
+                if self.cursor_position == 0:
                     self.launch_debug()
 
             current_time = SDL_GetTicks()  # units.MS
@@ -91,7 +91,8 @@ class Menu:
             last_update_time = current_time
 
             self.draw()
-            self.window.refresh()
+            self.world.process()
+            #self.window.refresh()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS
@@ -100,40 +101,7 @@ class Menu:
                 SDL_Delay(ms_per_frame - elapsed_time)
 
     def draw(self):
-
-        renderer = self.sdl_renderer
-
-        menu_text = self.menu_text
-
-        cursor_position = self.cursor_position
-        cursor_size = self.cursor_sprite_size
-
-        menu_bg = self.menu_bg_sprite
-        menu_cursor = self.menu_cursor_sprite
-
-        bg_dest_rect = SDL_Rect()
-
-        bg_dest_rect.x = 0
-        bg_dest_rect.y = 0
-        bg_dest_rect.w = WindowSize.WIDTH
-        bg_dest_rect.h = WindowSize.HEIGHT
-
-        cursor_dest_rect = SDL_Rect()
-
-        cursor_dest_rect.x = int((WindowSize.WIDTH / 2 - 200) - (cursor_size / 2))
-        cursor_dest_rect.y = int((WindowSize.HEIGHT / 2 - 72) - (cursor_size / 2)) + (cursor_position[1] * 32)
-        cursor_dest_rect.w = cursor_size
-        cursor_dest_rect.h = cursor_size
-
-        self.renderer.clear()
-
-        SDL_RenderCopy(renderer, menu_bg.texture, None, bg_dest_rect)
-
-        self.menu_dialog.draw(menu_text)
-
-        SDL_RenderCopy(renderer, menu_cursor.texture, None, cursor_dest_rect)
-
-        self.renderer.present()
+        self.renderer.render(self.sprites)
 
     def launch_debug(self):
         game = Game(self.window, self.renderer)
