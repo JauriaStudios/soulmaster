@@ -73,7 +73,6 @@ def main():
 
     world = World()
 
-    # Set up our renderer.
     sprite_renderer = None
     texture_renderer = None
 
@@ -83,7 +82,8 @@ def main():
         texture_renderer = Renderer(window)
         sprite_renderer = TextureRenderer(texture_renderer)
 
-    # Create our paddle sprites from our sprite factory.
+    # world.add_system(sprite_renderer)
+
     factory = None
     if RENDERER == "software":
         factory = SpriteFactory(SOFTWARE)

@@ -8,7 +8,7 @@ from sdl2.ext import Resources, SpriteFactory, TEXTURE
 from const import WindowSize, Colors
 from utils import Timer, dice
 from db import DataBase
-from ui import Dialog
+from ui import DialogBox
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -200,7 +200,7 @@ class NPC:
             self.dialog_timer.reset()
             self.close_dialog_timer.activate()
             self.msg = dice(len(self.dialogs) - 1)
-            self.dialog_box = Dialog(self.window, self.renderer, Colors.WHITE, 16, (10, 400), Colors.BLACK, "smalle.fon")
+            self.dialog_box = DialogBox(self.window, self.renderer, Colors.WHITE, 16, (10, 400), Colors.BLACK, "smalle.fon")
 
         self.close_dialog_timer.update()
 

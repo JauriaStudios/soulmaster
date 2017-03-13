@@ -6,7 +6,7 @@ from sdl2.ext import Resources, get_events
 
 from const import WindowSize, Colors
 from input import Input
-from ui import Dialog
+from ui import DialogBox
 from game import Game
 
 FPS = 60  # units.FPS
@@ -36,21 +36,22 @@ class Menu:
                      1: "OPTIONS",
                      2: "EXIT"}
 
-        self.dialog = Dialog(self.window,
-                             self.renderer,
-                             self.factory,
-                             self.text,
-                             Colors.WHITE,
-                             32,
-                             (300, 200),
-                             "04B_20__.TTF")
+        self.dialog = DialogBox(self.world,
+                                32,
+                                Colors.WHITE,
+                                Colors.BLACK,
+                                font="04B_20__.TTF",
+                                text=self.text,
+                                renderer=self.renderer)
 
-        self.border_sprites = self.dialog.decoration_sprites()
+        # self.border_sprites = self.dialog.decoration_sprites()
 
         self.sprites = [self.background_spite, self.cursor_sprite]
 
-        for sprite in self.border_sprites:
-            self.sprites.append(sprite)
+        # for sprite in self.border_sprites:
+        #    self.sprites.append(sprite)
+
+        world.add_system(self.renderer)
 
     def update(self, elapsed_time):
         self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
@@ -103,7 +104,7 @@ class Menu:
 
             last_update_time = current_time
 
-            self.renderer.render(self.sprites)
+            # self.renderer.render(self.sprites)
             self.world.process()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms

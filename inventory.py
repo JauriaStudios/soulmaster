@@ -5,7 +5,7 @@ import json
 from sdl2.ext import Resources
 
 from const import Colors
-from ui import Dialog
+from ui import DialogBox
 from db import DataBase
 
 RESOURCES = Resources(__file__, 'resources', 'ui')
@@ -26,7 +26,7 @@ class Inventory:
         print(self.left_hand)
 
         self.inv_text = {0: self.left_hand["name"], 1: self.left_hand["description"]}
-        self.inv_dialog = Dialog(self.window, self.renderer, Colors.WHITE, 16, (300, 200), Colors.BLACK, "GlametrixBold.otf")
+        self.inv_dialog = DialogBox(self.window, self.renderer, Colors.WHITE, 16, (300, 200), Colors.BLACK, "GlametrixBold.otf")
 
     def update(self, elapsed_time):
         pass
