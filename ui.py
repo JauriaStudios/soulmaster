@@ -190,18 +190,26 @@ class Dialog:
 
 
 class DialogBox(Entity):
-    def __init__(self, world, *args, **kwargs):
+    def __init__(self, **kwargs):
         if "renderer" not in kwargs:
             raise ValueError("you have to provide a renderer= argument")
+
+        self.font_size = kwargs['font_size']
+        self.fg_color = kwargs['fg_color']
+        self.bg_color = kwargs['bg_color']
+        self.font = kwargs['font']
+        self.text = kwargs['text']
+
         renderer = kwargs['renderer']
+
         super(DialogBox, self).__init__()
 
         msg_sprite = None
 
         if isinstance(renderer, SoftwareSpriteRenderSystem):
-            msg_sprite = SoftSprite(renderer, "04B_20__.TTF", "TEXT MESSAGE")
+            msg_sprite = SoftSprite(renderer, self.font, "TEXT MESSAGE")
         elif isinstance(renderer, TextureSpriteRenderSystem):
-            msg_sprite = TextSprite(renderer, "04B_20__.TTF", "TEXT MESSAGE")
+            msg_sprite = TextSprite(renderer, self.font, "TEXT MESSAGE")
 
         self.dialog = Dialog(msg_sprite)
 

@@ -36,10 +36,9 @@ class Menu:
                      1: "OPTIONS",
                      2: "EXIT"}
 
-        self.dialog = DialogBox(self.world,
-                                32,
-                                Colors.WHITE,
-                                Colors.BLACK,
+        self.dialog = DialogBox(font_size=32,
+                                fg_color=Colors.WHITE,
+                                bg_color=Colors.BLACK,
                                 font="04B_20__.TTF",
                                 text=self.text,
                                 renderer=self.renderer)
@@ -50,8 +49,6 @@ class Menu:
 
         # for sprite in self.border_sprites:
         #    self.sprites.append(sprite)
-
-        world.add_system(self.renderer)
 
     def update(self, elapsed_time):
         self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
@@ -104,8 +101,7 @@ class Menu:
 
             last_update_time = current_time
 
-            # self.renderer.render(self.sprites)
-            self.world.process()
+            self.renderer.render(self.sprites)
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS
