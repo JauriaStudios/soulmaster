@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Quit, SDL_GetTicks, SDL_KEYUP, SDL_KEYDOWN, SDL_QUIT,SDL_Delay
-from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE, SDLK_i
-from sdl2.ext import Resources, get_events
+from sdl2 import SDL_Quit,\
+    SDL_GetTicks,\
+    SDL_KEYUP,\
+    SDL_KEYDOWN,\
+    SDL_QUIT,\
+    SDL_Delay
+from sdl2 import SDLK_ESCAPE,\
+    SDLK_RIGHT,\
+    SDLK_UP,\
+    SDLK_DOWN,\
+    SDLK_LEFT,\
+    SDLK_SPACE,\
+    SDLK_i
+from sdl2.ext import Resources,\
+    get_events
 
 from const import WindowSize
 from input import Input
@@ -35,8 +47,10 @@ class Game(object):
 
         # self.map_renderer = TiledRenderer(map_file, self.window, self.renderer)
 
+        self.sprites = []
+
         self.player = Player(self.window, self.renderer, self.factory)
-        self.player_sprite = None
+        self.player_sprites = None
 
         self.all_npc = []
         self.init_npc("Debug Room")
@@ -81,13 +95,17 @@ class Game(object):
     def enemy_update(self, pos, elapsed_time):
         self.doombat.update(pos, elapsed_time)
 
-    def draw(self):
+    def get_sprites(self):
 
         # self.map_renderer.render_map("back")
         # self.map_renderer.render_map("up")
 
-        self.player_sprite = self.player.get_sprite()
-        self.renderer.render(self.player_sprite)
+        self.player_sprites = self.player.get_sprite()
+
+        for sprite in self.player_sprites:
+            self.sprites.append(sprite)
+
+        self.player_sprites.clear()
 
         """
         for npc in self.all_npc:
@@ -193,7 +211,10 @@ class Game(object):
 
             last_update_time = current_time
 
-            self.draw()
+            self.get_sprites()
+
+            self.renderer.render(self.sprites)
+            self.sprites.clear()
             # window.refresh()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
