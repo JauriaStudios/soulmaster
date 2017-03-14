@@ -25,9 +25,10 @@ class Menu:
         self.menu_cursor = RESOURCES.get_path("menu_cursor.png")
 
         self.running = True
-        self.cursor_start_position = 100, 200
+        self.position = 460, 340
+        self.cursor_start_position = 370, 330
         self.cursor_position = 0
-        self.cursor_sprite_size = 64
+        self.cursor_sprite_size = 32
 
         self.background_spite = self.factory.from_image(self.menu_bg)
         self.cursor_sprite = self.factory.from_image(self.menu_cursor)
@@ -36,19 +37,28 @@ class Menu:
                      1: "OPTIONS",
                      2: "EXIT"}
 
-        self.dialog = DialogBox(font_size=32,
+        self.dialog = DialogBox(self.world, self.factory,
+                                font_size=32,
                                 fg_color=Colors.WHITE,
                                 bg_color=Colors.BLACK,
-                                font="04B_20__.TTF",
+                                font_name="04B_20__.TTF",
                                 text=self.text,
+                                position=self.position,
                                 renderer=self.renderer)
 
-        # self.border_sprites = self.dialog.decoration_sprites()
+        self.sprites = [self.background_spite]
 
-        self.sprites = [self.background_spite, self.cursor_sprite]
+        self.border_sprites = self.dialog.get_decoration_sprites()
 
-        # for sprite in self.border_sprites:
-        #    self.sprites.append(sprite)
+        for sprite in self.border_sprites:
+            self.sprites.append(sprite)
+
+        self.text_sprites = self.dialog.get_text_sprites()
+
+        for sprite in self.text_sprites:
+            self.sprites.append(sprite)
+            
+        self.sprites.append(self.cursor_sprite)
 
     def update(self, elapsed_time):
         self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
