@@ -20,7 +20,7 @@ MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
-    def __init__(self, window, world, renderer):
+    def __init__(self, window, world, renderer, factory):
 
         self.db = DataBase()
 
@@ -31,15 +31,17 @@ class Game(object):
         self.window_size = window.size
         self.world = world
         self.renderer = renderer
+        self.factory = factory
 
-        self.map_renderer = TiledRenderer(map_file, self.window, self.renderer)
+        # self.map_renderer = TiledRenderer(map_file, self.window, self.renderer)
 
-        self.player = Player(self.window, self.renderer)
+        self.player = Player(self.window, self.renderer, self.factory)
+        self.player_sprite = None
 
         self.all_npc = []
         self.init_npc("Debug Room")
 
-        self.doombat = Enemy(self.renderer, "doombat")
+        self.doombat = Enemy(self.renderer, self.factory, "doombat")
 
         self.entities = [
             self.player,
@@ -62,14 +64,16 @@ class Game(object):
             map_npc.append(data["npc"])
 
         for npc in map_npc:
-            self.all_npc.append(NPC(self.window, self.renderer, npc))
+            self.all_npc.append(NPC(self.window, self.renderer, self.factory, npc))
 
     def update(self, position, elapsed_time):
-        for npc in self.all_npc:
-            npc.update(position, elapsed_time)
+        # for npc in self.all_npc:
+        #    npc.update(position, elapsed_time)
+        pass
 
     def map_update(self, pos, elapsed_time):
-        self.map_renderer.update(pos, elapsed_time)
+        # self.map_renderer.update(pos, elapsed_time)
+        pass
 
     def player_update(self, motion_type, facing, elapsed_time):
         self.player.update(motion_type, facing, elapsed_time)
@@ -78,21 +82,20 @@ class Game(object):
         self.doombat.update(pos, elapsed_time)
 
     def draw(self):
-        self.renderer.clear()
 
-        self.map_renderer.render_map("back")
-        self.map_renderer.render_map("up")
+        # self.map_renderer.render_map("back")
+        # self.map_renderer.render_map("up")
 
-        self.player.draw()
+        self.player_sprite = self.player.get_sprite()
+        self.renderer.render(self.player_sprite)
 
+        """
         for npc in self.all_npc:
             npc.draw()
 
         self.doombat.draw()
-
-        self.map_renderer.render_map("down")
-
-        self.renderer.present()
+        """
+        # self.map_renderer.render_map("down")
 
     def run(self):
 
@@ -184,14 +187,14 @@ class Game(object):
 
             self.update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
-            self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
+            # self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
             self.player_update(motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
             self.enemy_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 
             self.draw()
-            window.refresh()
+            # window.refresh()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS

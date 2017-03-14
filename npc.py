@@ -32,7 +32,7 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, window, renderer, json_data):
+    def __init__(self, window, renderer, factory, json_data):
 
         self.dialog_timer = Timer(10000, activated=True)
         self.close_dialog_timer = Timer(10000)
@@ -41,6 +41,7 @@ class NPC:
 
         self.window = window
         self.renderer = renderer
+        self.factory = factory
 
         data = json.loads(json_data)
 
@@ -61,11 +62,6 @@ class NPC:
             RESOURCES.get_path("{0}_standing.png".format(self.name)),
             RESOURCES.get_path("{0}_walking.png".format(self.name))
         ]
-
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
 
         self.sprite_sheets = {}
 

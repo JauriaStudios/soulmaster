@@ -28,8 +28,9 @@ class Facing:
 
 
 class Enemy:
-    def __init__(self, renderer, name):
+    def __init__(self, renderer, factory, name):
         self.renderer = renderer
+        self.factory = factory
 
         self.sprite_size = 128
         self.position = [0, 0]
@@ -41,11 +42,6 @@ class Enemy:
             RESOURCES.get_path("{0}_standing.png".format(name)),
             # RESOURCES.get_path("{0}_walking.png".format(name))
         ]
-
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
 
         self.sprite_sheets = {}
 

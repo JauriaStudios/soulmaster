@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Rect, SDL_RenderCopy
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_Rect,\
+    SDL_RenderCopy
+from sdl2.ext import Resources
 
 from const import WindowSize
 from spell import Spell
@@ -30,23 +31,22 @@ class Facing:
 
 
 class Player:
-    def __init__(self, window, renderer):
+    def __init__(self, window, renderer, factory):
 
         self.window = window
         self.renderer = renderer
+        self.factory = factory
 
         self.sprite_size = 128
+        self.sprite = None
+        self.sprite_position = int((WindowSize.WIDTH / 2) - (self.sprite_size / 2)), \
+                               int((WindowSize.HEIGHT / 2) - (self.sprite_size / 2))
 
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
             RESOURCES.get_path("player_walking.png"),
             RESOURCES.get_path("player_casting.png")
         ]
-
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
 
         self.sprite_sheets = {}
 
@@ -66,7 +66,6 @@ class Player:
         self.spell_life = 0
 
         self.inventory = None
-
 
     def init_sprite_sheet(self):
 
@@ -108,26 +107,23 @@ class Player:
         if self.inventory:
             self.inventory.update(elapsed_time)
 
-    def draw(self):
-
         if self.spell_life:
             self.spell.draw()
 
-        renderer = self.renderer.renderer
+        # renderer = self.renderer
         motion_type = self.motion_type
         facing = self.facing
         frame_index = self.frame_index
 
-        sprite = self.sprite_sheets[motion_type]
+        sprite_sheet = self.sprite_sheets[motion_type]
         sprite_size = self.sprite_size
 
-        src_rect = SDL_Rect()
+        sprite_crop = [0, 0, sprite_size, sprite_size]
 
-        src_rect.x = frame_index * sprite_size
-        src_rect.y = facing * sprite_size
-        src_rect.w = sprite_size
-        src_rect.h = sprite_size
+        sprite_crop[0] = frame_index * sprite_size
+        sprite_crop[1] = facing * sprite_size
 
+        """
         dest_rect = SDL_Rect()
 
         dest_rect.x = int((WindowSize.WIDTH / 2) - (sprite_size / 2))
@@ -136,7 +132,11 @@ class Player:
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        """
 
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = self.sprite_position
+        self.sprite = sprite
 
         if self.inventory:
             self.inventory.draw()
@@ -150,4 +150,6 @@ class Player:
             renderer = self.renderer
             self.inventory = Inventory(window, renderer)
 
+    def get_sprite(self):
+        return self.sprite
 

@@ -57,7 +57,7 @@ class Menu:
 
         for sprite in self.text_sprites:
             self.sprites.append(sprite)
-            
+
         self.sprites.append(self.cursor_sprite)
 
     def update(self, elapsed_time):
@@ -120,7 +120,7 @@ class Menu:
                 SDL_Delay(ms_per_frame - elapsed_time)
 
     def launch_game(self):
-        game = Game(self.window, self.world, self.renderer)
+        game = Game(self.window, self.world, self.renderer, self.factory)
         game.run()
 
         self.running = True
