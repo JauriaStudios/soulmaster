@@ -1,34 +1,42 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_RenderCopy, \
-    SDL_Rect, \
-    SDL_CreateTextureFromSurface, \
-    SDL_FreeSurface
+from sdl2 import SDL_FreeSurface
 
 from sdl2.ext import line,\
-    load_image,\
-    subsurface
+    load_image, \
+    subsurface, \
+    SoftwareSprite
 
 from pytmx import TiledTileLayer, TiledMap
 
 from const import WindowSize, Colors
 
 
-class Map:
-    def __init__(self, renderer, filename):
+class Map(SoftwareSprite):
+    def __init__(self, map_name):
+        self.tiles = Tiles(map_name)
+        self.tiles.update_map()
+        self.surfaces = self.tiles.get_sprite("background")
+        self.free = True
 
-        self.renderer = renderer
+        for surf in self.surfaces:
+            self.surface = surf
 
-        tm = TiledMap(filename)
+        super(Map, self).__init__(self.surface, self.free)
+
+
+class Tiles:
+    def __init__(self, map_name):
+
+        tm = TiledMap(map_name)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
-        self.tile_set_path = tm.images[1][0]
         self.tmx_data = tm
         self.position = [0, 0]
 
-        self.tile_set = load_image(self.tile_set_path)
-        self.tiles = {}
+        self.image_file, _, _ = self.tmx_data.get_tile_image(0, 0, 0)
 
-        self.draw_area = SDL_Rect(0, 0, WindowSize.WIDTH, WindowSize.HEIGHT)
+        self.tile_set = load_image(self.image_file)
+        self.tiles = {}
 
         self.blocking_elements = []
 
@@ -76,7 +84,6 @@ class Map:
 
                 self.tiles["background"] = tiles
 
-                SDL_FreeSurface(tile)
         """
         elif (background == "false") and (draw_layer == "up"):
             for x, y, tile in layer.tiles():
@@ -116,7 +123,7 @@ class Map:
         self.position = position
         self.update_map()
 
-    def get_tiles(self, draw_layer):
+    def get_sprite(self, draw_layer):
         return self.tiles[draw_layer]
 
     """

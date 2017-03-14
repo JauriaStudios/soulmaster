@@ -1,9 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Rect, SDL_RenderCopyEx, SDL_FLIP_NONE, SDL_RenderPresent
-from sdl2.ext import Window, Renderer, fill, SoftwareSpriteRenderSystem, TextureSpriteRenderSystem, Color, SDLError, \
-    init, World, SOFTWARE, TEXTURE, SpriteFactory
+from sdl2 import SDL_Rect, \
+    SDL_RenderCopyEx, \
+    SDL_FLIP_NONE, \
+    SDL_RenderPresent, \
+    SDL_Window, \
+    SDL_WINDOWPOS_CENTERED, \
+    SDL_WINDOW_SHOWN, \
+    SDL_Init, \
+    SDL_INIT_EVERYTHING
+
+from sdl2.ext import Window, \
+    Renderer, \
+    fill, \
+    SoftwareSpriteRenderSystem, \
+    TextureSpriteRenderSystem, \
+    Color, \
+    SDLError, \
+    init, \
+    World, \
+    SOFTWARE, \
+    TEXTURE, \
+    SpriteFactory
+
 from sdl2.ext.compat import isiterable
 
 from const import WindowSize
@@ -66,9 +86,11 @@ class TextureRenderer(TextureSpriteRenderSystem):
 def main():
     screen_size = (WindowSize.WIDTH, WindowSize.HEIGHT)
 
-    init()
+    SDL_Init(SDL_INIT_EVERYTHING)
 
-    window = Window("Soul Master", size=screen_size)
+    window = Window("Soul Master",
+                    (WindowSize.WIDTH,
+                     WindowSize.HEIGHT))
     window.show()
 
     world = World()

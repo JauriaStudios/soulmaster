@@ -31,14 +31,13 @@ MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Game:
-    def __init__(self, world, renderer, factory):
+    def __init__(self, world, window, renderer, factory):
 
         self.db = DataBase()
 
-        map_file = MAPS.get_path("map.tmx")
-
         self.running = False
         self.world = world
+        self.window = window
         self.renderer = renderer
         self.factory = factory
 
@@ -47,7 +46,9 @@ class Game:
         self.front_tiles = []
         self.sprites = []
 
-        self.map = Map(self.renderer, map_file)
+        map_file = MAPS.get_path("map.tmx")
+
+        self.map = Map(map_file)
 
         self.player = Player(self.renderer, self.factory)
 
@@ -69,7 +70,7 @@ class Game:
 
     def update(self, position, motion_type, facing, elapsed_time):
 
-        self.map.update(position, elapsed_time)
+        # self.map.tiles.update(position, elapsed_time)
 
         self.player.update(motion_type, facing, elapsed_time)
 
@@ -92,9 +93,7 @@ class Game:
             for sprite in enemy.get_sprites():
                 self.sprites.append(sprite)
 
-    def get_tiles(self):
-        self.background_tiles = self.map.get_tiles("background")
-
+        self.sprites.append(self.map)
 
     def run(self):
 
@@ -186,7 +185,6 @@ class Game:
 
             last_update_time = current_time
 
-            self.get_tiles()
             self.get_sprites()
 
             self.renderer.process(self.world, self.sprites)

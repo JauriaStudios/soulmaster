@@ -132,7 +132,7 @@ class Menu:
                 SDL_Delay(ms_per_frame - elapsed_time)
 
     def launch_game(self):
-        game = Game(self.world, self.renderer, self.factory)
+        game = Game(self.world, self.window, self.renderer, self.factory)
         game.run()
 
         self.running = True
