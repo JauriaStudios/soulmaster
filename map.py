@@ -133,4 +133,3 @@ class Map:
 
         line(surf, color, points)
     """
-

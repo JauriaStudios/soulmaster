@@ -30,7 +30,7 @@ RESOURCES = Resources(__file__, 'resources')
 MAPS = Resources(__file__, 'resources', 'maps')
 
 
-class Game(object):
+class Game:
     def __init__(self, world, renderer, factory):
 
         self.db = DataBase()
@@ -94,6 +94,7 @@ class Game(object):
 
     def get_tiles(self):
         self.background_tiles = self.map.get_tiles("background")
+
 
     def run(self):
 
@@ -188,7 +189,7 @@ class Game(object):
             self.get_tiles()
             self.get_sprites()
 
-            self.renderer.render(self.sprites)
+            self.renderer.process(self.world, self.sprites)
 
             self.sprites.clear()
 

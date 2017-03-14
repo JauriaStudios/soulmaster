@@ -138,7 +138,6 @@ class TextSprite(TextureSprite):
 
 class DialogBox:
     def __init__(self, factory, *args, **kwargs):
-        super(DialogBox, self).__init__()
 
         self.factory = factory
 
@@ -161,6 +160,7 @@ class DialogBox:
 
         for i in range(self.lines):
             self.create_text_sprites(i)
+        super(DialogBox, self).__init__()
 
     def create_text_sprites(self, line):
 
