@@ -30,14 +30,14 @@ class Menu:
         self.cursor_position = 0
         self.cursor_sprite_size = 32
 
-        self.background_spite = self.factory.from_image(self.menu_bg)
+        self.background_sprite = self.factory.from_image(self.menu_bg)
         self.cursor_sprite = self.factory.from_image(self.menu_cursor)
 
         self.text = {0: "START",
                      1: "OPTIONS",
                      2: "EXIT"}
 
-        self.dialog = DialogBox(self.world, self.factory,
+        self.dialog = DialogBox(self.factory,
                                 font_size=32,
                                 fg_color=Colors.WHITE,
                                 bg_color=Colors.BLACK,
@@ -46,16 +46,11 @@ class Menu:
                                 position=self.position,
                                 renderer=self.renderer)
 
-        self.sprites = [self.background_spite]
+        self.sprites = [self.background_sprite]
 
-        self.border_sprites = self.dialog.get_decoration_sprites()
+        sprites = self.dialog.get_sprites()
 
-        for sprite in self.border_sprites:
-            self.sprites.append(sprite)
-
-        self.text_sprites = self.dialog.get_text_sprites()
-
-        for sprite in self.text_sprites:
+        for sprite in sprites:
             self.sprites.append(sprite)
 
         self.sprites.append(self.cursor_sprite)
@@ -104,20 +99,21 @@ class Menu:
                 if self.cursor_position == 0:
                     self.launch_game()
 
-            current_time = SDL_GetTicks()  # units.MS
-            elapsed_time = current_time - last_update_time  # units.MS
+            if self.running:
+                current_time = SDL_GetTicks()  # units.MS
+                elapsed_time = current_time - last_update_time  # units.MS
 
-            self.update(min(elapsed_time, MAX_FRAME_TIME))
+                self.update(min(elapsed_time, MAX_FRAME_TIME))
 
-            last_update_time = current_time
+                last_update_time = current_time
 
-            self.renderer.render(self.sprites)
+                self.renderer.render(self.sprites)
 
-            # This loop lasts 1/60th of a second, or 1000/60th ms
-            ms_per_frame = 1000 // FPS  # units.MS
-            elapsed_time = SDL_GetTicks() - start_time  # units.MS
-            if elapsed_time < ms_per_frame:
-                SDL_Delay(ms_per_frame - elapsed_time)
+                # This loop lasts 1/60th of a second, or 1000/60th ms
+                ms_per_frame = 1000 // FPS  # units.MS
+                elapsed_time = SDL_GetTicks() - start_time  # units.MS
+                if elapsed_time < ms_per_frame:
+                    SDL_Delay(ms_per_frame - elapsed_time)
 
     def launch_game(self):
         game = Game(self.window, self.world, self.renderer, self.factory)

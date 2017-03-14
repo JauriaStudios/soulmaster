@@ -137,7 +137,7 @@ class TextSprite(TextureSprite):
 
 
 class DialogBox:
-    def __init__(self, world, factory, *args, **kwargs):
+    def __init__(self, factory, *args, **kwargs):
         super(DialogBox, self).__init__()
 
         self.factory = factory
@@ -150,18 +150,17 @@ class DialogBox:
         self.position = kwargs['position']
         self.renderer = kwargs['renderer']
 
-        self.text_sprites = []
-        self.border_sprites = []
+        self.sprites = []
 
         self.lines = len(self.text.items())
-
-        for i in range(self.lines):
-            self.create_text_sprites(i)
 
         border_sprite_sheet_path = RESOURCES.get_path("dialog_border.png")
         self.border_sprite_sheet = self.factory.from_image(border_sprite_sheet_path)
 
         self.create_decoration_sprites()
+
+        for i in range(self.lines):
+            self.create_text_sprites(i)
 
     def create_text_sprites(self, line):
 
@@ -181,10 +180,10 @@ class DialogBox:
 
         text_sprite.x = self.position[0]
         text_sprite.y = self.position[1] + (self.font_size * line)
-        self.text_sprites.append(text_sprite)
+        self.sprites.append(text_sprite)
 
-    def get_text_sprites(self):
-        return self.text_sprites
+    def get_sprites(self):
+        return self.sprites
 
     def create_decoration_sprites(self):
 
@@ -203,7 +202,7 @@ class DialogBox:
                                                    height + (tile_size * 2)))
         background.position = x - tile_size, y - tile_size
 
-        self.border_sprites.append(background)
+        self.sprites.append(background)
 
         cols = int(width / tile_size) + 3
         rows = int(height / tile_size) + 3
@@ -243,7 +242,5 @@ class DialogBox:
                 sprite = self.border_sprite_sheet.subsprite(sprite_crop)
                 sprite.position = (16 * i) + (x - 32), (16 * j) + (y - 32)
 
-                self.border_sprites.append(sprite)
+                self.sprites.append(sprite)
 
-    def get_decoration_sprites(self):
-        return self.border_sprites

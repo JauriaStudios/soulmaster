@@ -31,16 +31,17 @@ class Facing:
 
 
 class Player:
-    def __init__(self, window, renderer, factory):
+    def __init__(self, renderer, factory):
 
-        self.window = window
         self.renderer = renderer
         self.factory = factory
 
         self.sprite_size = 128
-        self.sprites = []
-        self.sprite_position = round((WindowSize.WIDTH / 2) - (self.sprite_size / 2)), \
-                               round((WindowSize.HEIGHT / 2) - (self.sprite_size / 2))
+
+        x = int((WindowSize.WIDTH / 2) - (self.sprite_size / 2))
+        y = int((WindowSize.HEIGHT / 2) - (self.sprite_size / 2))
+
+        self.sprite_position = x, y
 
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
@@ -49,6 +50,7 @@ class Player:
         ]
 
         self.sprite_sheets = {}
+        self.sprites = []
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
@@ -64,7 +66,6 @@ class Player:
         self.spell = None
         self.spell_max_life = 100
         self.spell_life = 0
-        self.spell_sprite = None
 
         self.inventory = None
 
@@ -83,6 +84,7 @@ class Player:
 
         self.motion_type = motion_type
         self.facing = facing
+        self.sprites.clear()
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:
@@ -94,8 +96,13 @@ class Player:
         if self.spell_life:
             self.spell_life -= 1
             self.spell.update(elapsed_time)
+            self.sprites.append(self.spell.get_sprite())
         else:
             self.spell = None
+
+        if self.inventory:
+            self.inventory.update(elapsed_time)
+            self.inventory.draw()
 
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
@@ -106,27 +113,20 @@ class Player:
         self.last_facing = self.facing
         self.last_motion_type = self.motion_type
 
-        if self.inventory:
-            self.inventory.update(elapsed_time)
+        sprite_sheet = self.sprite_sheets[self.motion_type]
 
-        if self.spell_life:
-            spell_sprite = self.spell.get_sprite()
-            self.sprites.append(spell_sprite)
+        sprite_crop = [self.frame_index * self.sprite_size,
+                       self.facing * self.sprite_size,
+                       self.sprite_size,
+                       self.sprite_size]
 
-        # renderer = self.renderer
-        motion_type = self.motion_type
-        facing = self.facing
-        frame_index = self.frame_index
-
-        sprite_sheet = self.sprite_sheets[motion_type]
-        sprite_size = self.sprite_size
-
-        sprite_crop = [frame_index * sprite_size,
-                       facing * sprite_size,
-                       sprite_size,
-                       sprite_size]
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = self.sprite_position
+        self.sprites.append(sprite)
 
         """
+        renderer = self.renderer
+
         src_rect = SDL_Rect()
 
         src_rect.x = frame_index * sprite_size
@@ -144,21 +144,12 @@ class Player:
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
         """
 
-        sprite = sprite_sheet.subsprite(sprite_crop)
-        sprite.position = self.sprite_position
-        self.sprites.append(sprite)
-
-        if self.inventory:
-            self.inventory.draw()
-
     def toggle_inventory(self):
-
         if self.inventory:
             self.inventory = None
         else:
-            window = self.window
             renderer = self.renderer
-            self.inventory = Inventory(window, renderer)
+            self.inventory = Inventory(renderer)
 
-    def get_sprite(self):
+    def get_sprites(self):
         return self.sprites
