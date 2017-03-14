@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_GetTicks,\
-    SDL_KEYUP,\
-    SDL_KEYDOWN,\
-    SDL_QUIT,\
+from sdl2 import SDL_GetTicks, \
+    SDL_KEYUP, \
+    SDL_KEYDOWN, \
+    SDL_QUIT, \
     SDL_Delay
-from sdl2 import SDLK_ESCAPE,\
-    SDLK_RIGHT,\
-    SDLK_UP,\
-    SDLK_DOWN,\
-    SDLK_LEFT,\
-    SDLK_SPACE,\
+from sdl2 import SDLK_ESCAPE, \
+    SDLK_RIGHT, \
+    SDLK_UP, \
+    SDLK_DOWN, \
+    SDLK_LEFT, \
+    SDLK_SPACE, \
     SDLK_i
-from sdl2.ext import Resources,\
+from sdl2.ext import Resources, \
     get_events
 
 from const import WindowSize
@@ -48,7 +48,8 @@ class Game:
 
         map_file = MAPS.get_path("map.tmx")
 
-        self.map = Map(map_file)
+        self.map_bg_sprite = Map(map_file)
+        # self.map_behind_sprite = Map(map_file, draw_layer="behind")
 
         self.player = Player(self.renderer, self.factory)
 
@@ -70,7 +71,8 @@ class Game:
 
     def get_sprites(self):
 
-        self.sprites.append(self.map)
+        self.sprites.append(self.map_bg_sprite)
+        # self.sprites.append(self.map_behind_sprite)
 
         for sprite in self.player.get_sprites():
             self.sprites.append(sprite)
@@ -85,7 +87,7 @@ class Game:
 
     def update(self, position, motion_type, facing, elapsed_time):
 
-        self.map.position = position
+        self.map_bg_sprite.position = position
 
         self.player.update(motion_type, facing, elapsed_time)
 
@@ -94,7 +96,6 @@ class Game:
 
         for enemy in self.all_enemies:
             enemy.update(position, elapsed_time)
-
 
     def run(self):
 

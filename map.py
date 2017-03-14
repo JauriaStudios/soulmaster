@@ -17,10 +17,10 @@ from const import WindowSize, Colors
 
 
 class Map(SoftwareSprite):
-    def __init__(self, map_name):
+    def __init__(self, map_name, draw_layer="background"):
         self.tiles = Tiles(map_name)
         self.tiles.update_map()
-        self.surface = self.tiles.get_sprite("background")
+        self.surface = self.tiles.get_sprite(draw_layer)
         self.free = True
 
         super(Map, self).__init__(self.surface.contents, self.free)
@@ -64,22 +64,24 @@ class Tiles:
         tw = self.tmx_data.tilewidth
         th = self.tmx_data.tileheight
         pos = self.position
+        draw_layer = ""
 
         background = layer.properties['background']
 
         tile_position = [0, 0]
 
+        surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                       self.size[0],
+                                       self.size[1],
+                                       32,
+                                       0x000000FF,
+                                       0x0000FF00,
+                                       0x00FF0000,
+                                       0xFF000000)
+
         # iterate over the tiles in the layer
         if background == "true":
 
-            surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                           self.size[0],
-                                           self.size[1],
-                                           32,
-                                           0x000000FF,
-                                           0x0000FF00,
-                                           0x00FF0000,
-                                           0xFF000000)
             for x, y, data in layer.tiles():
                 tile_crop = data[1]
 
@@ -93,45 +95,34 @@ class Tiles:
                 SDL_BlitSurface(tile, None, surface, rect)
 
             self.tiles["background"] = surface
-
         """
-        elif (background == "false") and (draw_layer == "up"):
-            for x, y, tile in layer.tiles():
+        if background == "false":
+            for x, y, data in layer.tiles():
+                tile_crop = data[1]
 
-                texture, src, flip = tile
+                tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2))
+                tile_position[1] = int(((x + y) * th / 2) + pos[1])
 
-                dest.x = int(((x - y) * tw / 2) + window_x / 2) + pos[0]
-                dest.y = int(((x + y) * th / 2) - window_y / 8) + pos[1]
+                if tile_position[1] < (WindowSize.HEIGHT /2) - 72:
+                    tile = subsurface(self.tile_set, tile_crop)
+                    rect = SDL_Rect(tile_position[0], tile_position[1])
+                    SDL_BlitSurface(tile, None, surface, rect)
+                    draw_layer = "behind"
+                else:
+                    pass
+                    tile = subsurface(self.tile_set, tile_crop)
+                    rect = SDL_Rect(tile_position[0], tile_position[1])
+                    SDL_BlitSurface(tile, None, surface, rect)
+                    draw_layer = "front"
 
-                angle = 90 if (flip & 4) else 0
-
-                if dest.y < (window_y / 2) - 72:
-                    SDL_RenderCopy(renderer, texture, src, dest, angle, None, flip)
-
-        elif (background == "false") and (draw_layer == "down"):
-            for x, y, tile in layer.tiles():
-
-                texture, src, flip = tile
-
-                dest.x = int(((x - y) * tw / 2) + window_x / 2) + pos[0]
-                dest.y = int(((x + y) * th / 2) - window_y / 8) + pos[1]
-
-                angle = 90 if (flip & 4) else 0
-
-                if dest.y >= (window_y / 2) - 72:
-                    rce(renderer, texture, src, dest, angle, None, flip)
-        """
-
+            self.tiles[draw_layer] = surface
+            """
     def update_map(self):
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, TiledTileLayer):
                 self.update_tile_layer(layer)
 
                 # self.draw_blocking_elements()
-
-    def update(self, position, elapsed_time):
-        self.position = position
-        self.update_map()
 
     def get_sprite(self, draw_layer):
         return self.tiles[draw_layer]
