@@ -72,9 +72,9 @@ class Player:
     def init_sprite_sheet(self):
 
         for motion_type in range(MotionType.COUNT):
-            self.load_image(self.player_sprites[motion_type], motion_type)
+            self.loads_image(self.player_sprites[motion_type], motion_type)
 
-    def load_image(self, file_path, motion_type):
+    def loads_image(self, file_path, motion_type):
         sprite_sheets = self.sprite_sheets.get(file_path)
         if not sprite_sheets:
             sprite_surface = self.factory.from_image(file_path)

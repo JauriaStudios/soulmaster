@@ -1,24 +1,34 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_RenderCopyEx, SDL_Rect
-from sdl2.ext import line
+from sdl2 import SDL_RenderCopy, \
+    SDL_Rect, \
+    SDL_CreateTextureFromSurface, \
+    SDL_FreeSurface
 
-from pytmx import *
-from pytmx.util_pysdl2 import load_pysdl2
+from sdl2.ext import line,\
+    load_image,\
+    subsurface
+
+from pytmx import TiledTileLayer, TiledMap
 
 from const import WindowSize, Colors
 
 
-class TiledRenderer:
-    def __init__(self, filename, window, renderer):
+class Map:
+    def __init__(self, renderer, filename):
 
-        self.window = window
         self.renderer = renderer
 
-        tm = load_pysdl2(self.renderer, filename)
+        tm = TiledMap(filename)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
+        self.tile_set_path = tm.images[1][0]
         self.tmx_data = tm
-        self.pos = (0, 0)
+        self.position = [0, 0]
+
+        self.tile_set = load_image(self.tile_set_path)
+        self.tiles = {}
+
+        self.draw_area = SDL_Rect(0, 0, WindowSize.WIDTH, WindowSize.HEIGHT)
 
         self.blocking_elements = []
 
@@ -34,37 +44,41 @@ class TiledRenderer:
 
         print("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
-            logger.info("{0}\t{1}".format(k, v))
+            print("{0}\t{1}".format(k, v))
 
-    def render_tile_layer(self, layer, level):
-        # deref these heavily used references for speed
+    def update_tile_layer(self, layer):
         window_x = WindowSize.WIDTH
         window_y = WindowSize.HEIGHT
 
-        renderer = self.renderer.renderer
-
         tw = self.tmx_data.tilewidth
         th = self.tmx_data.tileheight
-        pos = self.pos
+        pos = self.position
 
-        dest = SDL_Rect(0, 0, tw, th + 96)
-        rce = SDL_RenderCopyEx
+        tiles = []
 
         background = layer.properties['background']
 
+        tile_position = [0, 0]
+
         # iterate over the tiles in the layer
-        if (background == "true") and (level == "back"):
-            for x, y, tile in layer.tiles():
-                texture, src, flip = tile
+        if background == "true":
+            for x, y, data in layer.tiles():
 
-                dest.x = int(((x - y) * tw / 2) + window_x / 2) + pos[0]
-                dest.y = int(((x + y) * th / 2) - window_y / 8) + pos[1]
+                tile_crop = data[1]
 
-                angle = 90 if (flip & 4) else 0
+                tile_position[0] = int(((x - y) * tw / 2) + window_x / 2) + pos[0]
+                tile_position[1] = int(((x + y) * th / 2) - window_y / 8) + pos[1]
 
-                rce(renderer, texture, src, dest, angle, None, flip)
+                tile = subsurface(self.tile_set, tile_crop)
+                tile.position = tile_position
 
-        elif (background == "false") and (level == "up"):
+                tiles.append(tile)
+
+                self.tiles["background"] = tiles
+
+                SDL_FreeSurface(tile)
+        """
+        elif (background == "false") and (draw_layer == "up"):
             for x, y, tile in layer.tiles():
 
                 texture, src, flip = tile
@@ -75,9 +89,9 @@ class TiledRenderer:
                 angle = 90 if (flip & 4) else 0
 
                 if dest.y < (window_y / 2) - 72:
-                    rce(renderer, texture, src, dest, angle, None, flip)
+                    SDL_RenderCopy(renderer, texture, src, dest, angle, None, flip)
 
-        elif (background == "false") and (level == "down"):
+        elif (background == "false") and (draw_layer == "down"):
             for x, y, tile in layer.tiles():
 
                 texture, src, flip = tile
@@ -89,17 +103,23 @@ class TiledRenderer:
 
                 if dest.y >= (window_y / 2) - 72:
                     rce(renderer, texture, src, dest, angle, None, flip)
+        """
 
-    def render_map(self, level):
+    def update_map(self):
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, TiledTileLayer):
-                self.render_tile_layer(layer, level)
+                self.update_tile_layer(layer)
 
-        # self.draw_blocking_elements()
+                # self.draw_blocking_elements()
 
     def update(self, position, elapsed_time):
-        self.pos = position
+        self.position = position
+        self.update_map()
 
+    def get_tiles(self, draw_layer):
+        return self.tiles[draw_layer]
+
+    """
     def draw_blocking_elements(self):
 
         surf = self.window.get_surface()
@@ -112,3 +132,5 @@ class TiledRenderer:
                 points.append(round(lines[1]) + self.pos[1])
 
         line(surf, color, points)
+    """
+

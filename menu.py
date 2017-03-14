@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Delay, SDL_GetTicks, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT, SDL_Rect, SDL_RenderCopy
-from sdl2 import SDLK_ESCAPE, SDLK_UP, SDLK_DOWN, SDLK_RETURN
-from sdl2.ext import Resources, get_events
+from sdl2 import SDL_Delay,\
+    SDL_GetTicks,\
+    SDL_KEYDOWN,\
+    SDL_KEYUP,\
+    SDL_QUIT,\
+    SDL_Rect,\
+    SDL_RenderCopy,\
+    SDLK_ESCAPE,\
+    SDLK_UP,\
+    SDLK_DOWN,\
+    SDLK_RETURN,\
+    SDL_Quit
+
+from sdl2.ext import Resources,\
+    get_events
 
 from const import WindowSize, Colors
 from input import Input
@@ -20,6 +32,8 @@ class Menu:
         self.renderer = renderer
         self.world = world
         self.factory = factory
+
+        self.rsystem = factory.create_sprite_render_system(window)
 
         self.menu_bg = RESOURCES.get_path("menu_bg.png")
         self.menu_cursor = RESOURCES.get_path("menu_cursor.png")
@@ -54,6 +68,9 @@ class Menu:
             self.sprites.append(sprite)
 
         self.sprites.append(self.cursor_sprite)
+
+    def __del__(self):
+        SDL_Quit()
 
     def update(self, elapsed_time):
         self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
@@ -99,24 +116,23 @@ class Menu:
                 if self.cursor_position == 0:
                     self.launch_game()
 
-            if self.running:
-                current_time = SDL_GetTicks()  # units.MS
-                elapsed_time = current_time - last_update_time  # units.MS
+            current_time = SDL_GetTicks()  # units.MS
+            elapsed_time = current_time - last_update_time  # units.MS
 
-                self.update(min(elapsed_time, MAX_FRAME_TIME))
+            self.update(min(elapsed_time, MAX_FRAME_TIME))
 
-                last_update_time = current_time
+            last_update_time = current_time
 
-                self.renderer.render(self.sprites)
+            self.renderer.render(self.sprites)
 
-                # This loop lasts 1/60th of a second, or 1000/60th ms
-                ms_per_frame = 1000 // FPS  # units.MS
-                elapsed_time = SDL_GetTicks() - start_time  # units.MS
-                if elapsed_time < ms_per_frame:
-                    SDL_Delay(ms_per_frame - elapsed_time)
+            # This loop lasts 1/60th of a second, or 1000/60th ms
+            ms_per_frame = 1000 // FPS  # units.MS
+            elapsed_time = SDL_GetTicks() - start_time  # units.MS
+            if elapsed_time < ms_per_frame:
+                SDL_Delay(ms_per_frame - elapsed_time)
 
     def launch_game(self):
-        game = Game(self.window, self.world, self.renderer, self.factory)
+        game = Game(self.world, self.renderer, self.factory)
         game.run()
 
         self.running = True

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Quit,\
-    SDL_GetTicks,\
+from sdl2 import SDL_GetTicks,\
     SDL_KEYUP,\
     SDL_KEYDOWN,\
     SDL_QUIT,\
@@ -19,7 +18,7 @@ from sdl2.ext import Resources,\
 from const import WindowSize
 from input import Input
 from db import DataBase
-from map import TiledRenderer
+from map import Map
 from player import Player, Facing, MotionType
 from npc import NPC
 from enemy import Enemy
@@ -32,7 +31,7 @@ MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Game(object):
-    def __init__(self, window, world, renderer, factory):
+    def __init__(self, world, renderer, factory):
 
         self.db = DataBase()
 
@@ -43,27 +42,19 @@ class Game(object):
         self.renderer = renderer
         self.factory = factory
 
-        # self.map_renderer = TiledRenderer(map_file, self.window, self.renderer)
-
+        self.background_tiles = []
+        self.behind_tiles = []
+        self.front_tiles = []
         self.sprites = []
+
+        self.map = Map(self.renderer, map_file)
 
         self.player = Player(self.renderer, self.factory)
 
         self.all_npc = []
         self.init_npc("Debug Room")
 
-        self.doombat = Enemy(self.renderer, self.factory, "doombat")
-
-        self.entities = [
-            self.player,
-            self.doombat
-        ]
-
-        self.player_layer = 0
-        self.enemy_layer = 0
-
-    def __del__(self):
-        SDL_Quit()
+        self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
 
     def init_npc(self, map_name):
 
@@ -76,21 +67,19 @@ class Game(object):
         for npc in map_npc:
             self.all_npc.append(NPC(self.renderer, self.factory, npc))
 
-    def map_update(self, pos, elapsed_time):
-        # self.map_renderer.update(pos, elapsed_time)
-        pass
-
     def update(self, position, motion_type, facing, elapsed_time):
+
+        self.map.update(position, elapsed_time)
+
         self.player.update(motion_type, facing, elapsed_time)
 
         for npc in self.all_npc:
             npc.update(position, elapsed_time)
 
-        self.doombat.update(position, elapsed_time)
+        for enemy in self.all_enemies:
+            enemy.update(position, elapsed_time)
 
     def get_sprites(self):
-        # self.map_renderer.render_map("back")
-        # self.map_renderer.render_map("up")
 
         for sprite in self.player.get_sprites():
             self.sprites.append(sprite)
@@ -99,9 +88,12 @@ class Game(object):
             for sprite in npc.get_sprites():
                 self.sprites.append(sprite)
 
-        for sprite in self.doombat.get_sprites():
-            self.sprites.append(sprite)
-        # self.map_renderer.render_map("down")
+        for enemy in self.all_enemies:
+            for sprite in enemy.get_sprites():
+                self.sprites.append(sprite)
+
+    def get_tiles(self):
+        self.background_tiles = self.map.get_tiles("background")
 
     def run(self):
 
@@ -189,14 +181,15 @@ class Game(object):
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            # self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
             self.update(player_pos, motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 
+            self.get_tiles()
             self.get_sprites()
 
             self.renderer.render(self.sprites)
+
             self.sprites.clear()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
