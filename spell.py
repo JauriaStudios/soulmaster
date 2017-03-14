@@ -22,19 +22,16 @@ class Facing:
 
 
 class Spell:
-    def __init__(self, renderer, name, player_facing):
+    def __init__(self, renderer, factory, name, player_facing):
         self.renderer = renderer
+        self.factory = factory
 
         self.sprite_size = 64
 
-        self.sprites = RESOURCES.get_path("{0}.png".format(name))
+        sprite_sheet_path = RESOURCES.get_path("{0}.png".format(name))
+        self.sprite_sheet = self.factory.from_image(sprite_sheet_path)
 
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
-
-        self.sprite_sheet = self.factory.from_image(self.sprites)
+        self.sprite = None
 
         self.facing = int_map(player_facing, 0, 7, 7, 0)
         self.last_facing = self.facing
@@ -92,17 +89,21 @@ class Spell:
 
         self.last_facing = self.facing
 
-    def draw(self):
-
-        renderer = self.renderer.renderer
+        renderer = self.renderer
         facing = self.facing
         facing_position = self.facing_position
         frame_index = self.frame_index
         speed = self.speed
 
-        sprite = self.sprite_sheet
+        sprite_sheet = self.sprite_sheet
         sprite_size = self.sprite_size
 
+        sprite_crop = [frame_index * sprite_size,
+                       facing * sprite_size,
+                       sprite_size,
+                       sprite_size]
+
+        """
         src_rect = SDL_Rect()
 
         src_rect.x = frame_index * sprite_size
@@ -118,3 +119,11 @@ class Spell:
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        """
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = round((WindowSize.WIDTH / 2) - (sprite_size / 2) + speed[0] + facing_position[0]), \
+                          round((WindowSize.HEIGHT / 2) - (sprite_size / 2) + speed[1] + facing_position[1])
+        self.sprite = sprite
+
+    def get_sprite(self):
+        return self.sprite

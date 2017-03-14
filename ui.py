@@ -1,156 +1,246 @@
 # coding=utf-8
 
-from sdl2 import SDL_ClearError, SDL_CreateTextureFromSurface, SDL_FreeSurface, SDL_RenderCopy, SDL_Rect
-from sdl2.sdlttf import TTF_Init, TTF_Quit, TTF_RenderText_Blended, TTF_OpenFont, TTF_CloseFont
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_ClearError, \
+    SDL_CreateTextureFromSurface, \
+    SDL_FreeSurface, \
+    SDL_RenderCopy, \
+    SDL_Rect, \
+    SDL_Color, \
+    SDL_DestroyTexture
 
-from const import Colors, WindowSize
+from sdl2.sdlttf import TTF_Init, \
+    TTF_RenderText_Blended, \
+    TTF_OpenFont, \
+    TTF_CloseFont, \
+    TTF_GetError, \
+    TTF_RenderText_Shaded
+
+from sdl2.ext import Resources, \
+    TextureSpriteRenderSystem, \
+    TextureSprite, \
+    SoftwareSprite, \
+    SoftwareSpriteRenderSystem, \
+    SDLError, \
+    FontManager
+
+from const import Colors
+from utils import count_chars
 
 RESOURCES = Resources(__file__, 'resources', 'ui')
 FONTS = Resources(__file__, 'resources', 'fonts')
 
 
-class Dialog:
-    def __init__(self, window, renderer, text_color, text_size, text_position, dialog_color, font):
-        TTF_Init()
+class SoftSprite(SoftwareSprite):
+    def __init__(self, renderer, font=None, text="", font_size=16,
+                 text_color=SDL_Color(255, 255, 255),
+                 background_color=SDL_Color(0, 0, 0)):
 
-        self.window = window
-        self.window_size = window.size
-        self.sdl_renderer = renderer
-
-        self.text_color = text_color
-        self.text_size = text_size
-        self.text_position = text_position
-        self.dialog_color = dialog_color
-
-        self.font_path = FONTS.get_path(font)
-
-        self.image = None
-
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.sdl_renderer
-        )
-
-        border_image_path = RESOURCES.get_path("dialog_border.png")
-        self.border = self.factory.from_image(border_image_path)
-        self.bg = None
-
-    def __del__(self):
-        TTF_Quit()
-
-    def render_text(self, message, font_file, font_color, font_size):
-        SDL_ClearError()
-        font = TTF_OpenFont(font_file.encode("UTF-8"), font_size)
+        self.renderer = renderer
 
         if font is None:
-            return None
+            font = FONTS.get_path("04B_20__.TTF")
+        else:
+            font = FONTS.get_path(font)
 
-        surf = TTF_RenderText_Blended(font,
-                                      message.encode("UTF-8"),
-                                      font_color)
+        self.font_manager = FontManager(font, bg_color=background_color)
 
-        if surf is None:
-            TTF_CloseFont(font)
-            return None
+        self._text = text
+        self.font_size = font_size
+        self.text_color = text_color
+        self.background_color = background_color
 
-        texture = SDL_CreateTextureFromSurface(self.sdl_renderer.renderer,
-                                               surf)
+        surface = self._create_surface()
+
+        super(SoftSprite, self).__init__(surface, True)
+
+    def _create_surface(self):
+        surface = self.font_manager.render(self._text)
+        if surface is None:
+            raise TTF_GetError()
+        return surface
+
+    def _update_surface(self):
+
+        surface = self._create_surface()
+        super(SoftSprite, self).__init__(surface, None)
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        if self._text == value:
+            return
+        self._text = value
+
+        self._update_surface()
+
+
+class TextSprite(TextureSprite):
+    def __init__(self, renderer, font=None, text="", font_size=16,
+                 text_color=SDL_Color(255, 255, 255),
+                 background_color=SDL_Color(0, 0, 0)):
+
+        self.renderer = renderer
+
+        if font is None:
+            font = FONTS.get_path("04B_20__.TTF")
+        else:
+            font = FONTS.get_path(font)
+
+        self.font = TTF_OpenFont(font.encode("UTF-8"), font_size)
+
+        if self.font is None:
+            raise TTF_GetError()
+        self._text = text
+        self.font_size = font_size
+        self.text_color = text_color
+        self.background_color = background_color
+        texture = self._create_texture()
+
+        super(TextSprite, self).__init__(texture)
+
+    def _create_texture(self):
+        text_surface = TTF_RenderText_Shaded(self.font, self._text.encode("UTF-8"), self.text_color,
+                                             self.background_color)
+        if text_surface is None:
+            raise TTF_GetError()
+
+        texture = SDL_CreateTextureFromSurface(self.renderer, text_surface)
 
         if texture is None:
-            return None
+            raise SDLError()
 
-        SDL_FreeSurface(surf)
-        TTF_CloseFont(font)
-
+        SDL_FreeSurface(text_surface)
         return texture
 
-    def draw(self, messages, text_position=None):
-        if text_position:
-            self.text_position = text_position
+    def _update_texture(self):
+        texture_to_delete = self.texture
 
-        chars = []
-        for (index, text) in messages.items():
-            i = 0
-            for char in text:
-                i += 1
-            chars.append(i)
+        texture = self._create_texture()
+        super(TextSprite, self).__init__(texture)
 
-        width = (self.text_size * max(chars))
-        height = self.text_size
-        x = self.text_position[0]
-        y = self.text_position[1]
+        SDL_DestroyTexture(texture_to_delete)
 
-        renderer = self.sdl_renderer.renderer
+    @property
+    def text(self):
+        return self._text
 
-        self.bg = self.factory.from_color(Colors.BLACK,
-                                          size=(width, height))
+    @text.setter
+    def text(self, value):
+        if self._text == value:
+            return
+        self._text = value
 
-        bg_dest = SDL_Rect(x - 16,
-                           y - 16,
-                           width + 32,
-                           height * len(messages.items()) + 32)
+        self._update_texture()
 
-        SDL_RenderCopy(renderer,
-                       self.bg.texture,
-                       None,
-                       bg_dest)
 
-        border_src = SDL_Rect(0, 0, 16, 16)
-        border_dest = SDL_Rect(0, 0, 16, 16)
+class DialogBox:
+    def __init__(self, factory, *args, **kwargs):
 
-        cols = int(width / 16) + 3
-        rows = int(height / 16) * len(messages.items()) + 3
+        self.factory = factory
+
+        self.font_size = kwargs['font_size']
+        self.fg_color = kwargs['fg_color']
+        self.bg_color = kwargs['bg_color']
+        self.font_name = kwargs['font_name']
+        self.text = kwargs['text']
+        self.position = kwargs['position']
+        self.renderer = kwargs['renderer']
+
+        self.sprites = []
+
+        self.lines = len(self.text.items())
+
+        border_sprite_sheet_path = RESOURCES.get_path("dialog_border.png")
+        self.border_sprite_sheet = self.factory.from_image(border_sprite_sheet_path)
+
+        self.create_decoration_sprites()
+
+        for i in range(self.lines):
+            self.create_text_sprites(i)
+        super(DialogBox, self).__init__()
+
+    def create_text_sprites(self, line):
+
+        text_sprite = None
+
+        if isinstance(self.renderer, SoftwareSpriteRenderSystem):
+            text_sprite = SoftSprite(self.renderer, self.font_name, self.text[line],
+                                     font_size=self.font_size,
+                                     text_color=self.fg_color,
+                                     background_color=self.bg_color)
+
+        elif isinstance(self.renderer, TextureSpriteRenderSystem):
+            text_sprite = TextSprite(self.renderer, self.font_name, self.text[line],
+                                     font_size=self.font_size,
+                                     text_color=self.fg_color,
+                                     background_color=self.bg_color)
+
+        text_sprite.x = self.position[0]
+        text_sprite.y = self.position[1] + (self.font_size * line)
+        self.sprites.append(text_sprite)
+
+    def get_sprites(self):
+        return self.sprites
+
+    def create_decoration_sprites(self):
+
+        max_chars = 32
+        lines = self.lines
+        tile_size = 16
+
+        width = self.font_size * max_chars
+        height = self.font_size * lines
+
+        x = self.position[0]
+        y = self.position[1]
+
+        background = self.factory.from_color(Colors.BLACK,
+                                             size=(width + (tile_size * 2),
+                                                   height + (tile_size * 2)))
+        background.position = x - tile_size, y - tile_size
+
+        self.sprites.append(background)
+
+        cols = int(width / tile_size) + 3
+        rows = int(height / tile_size) + 3
+
+        sprite_crop = [0, 0, tile_size, tile_size]
 
         for i in range(cols + 1):
             for j in range(rows + 1):
                 if (i == 0) and (j == 0):
-                    border_src.x = 0
-                    border_src.y = 0
+                    sprite_crop[0] = 0
+                    sprite_crop[1] = 0
                 elif (i < cols) and (j == 0):
-                    border_src.x = 16
-                    border_src.y = 0
+                    sprite_crop[0] = 16
+                    sprite_crop[1] = 0
                 elif (i == cols) and (j == 0):
-                    border_src.x = 32
-                    border_src.y = 0
+                    sprite_crop[0] = 32
+                    sprite_crop[1] = 0
                 elif (i == cols) and (j < rows):
-                    border_src.x = 32
-                    border_src.y = 16
+                    sprite_crop[0] = 32
+                    sprite_crop[1] = 16
                 elif (i == 0) and (j < rows):
-                    border_src.x = 0
-                    border_src.y = 16
+                    sprite_crop[0] = 0
+                    sprite_crop[1] = 16
                 elif (i == 0) and (j == rows):
-                    border_src.x = 0
-                    border_src.y = 32
+                    sprite_crop[0] = 0
+                    sprite_crop[1] = 32
                 elif (i < cols) and (j == rows):
-                    border_src.x = 16
-                    border_src.y = 32
+                    sprite_crop[0] = 16
+                    sprite_crop[1] = 32
                 elif (i == cols) and (j == rows):
-                    border_src.x = 32
-                    border_src.y = 32
+                    sprite_crop[0] = 32
+                    sprite_crop[1] = 32
                 else:
-                    border_src.x = 16
-                    border_src.y = 16
+                    sprite_crop[0] = 16
+                    sprite_crop[1] = 16
 
-                border_dest.x = (16 * i) + (x - 32)
-                border_dest.y = (16 * j) + (y - 32)
+                sprite = self.border_sprite_sheet.subsprite(sprite_crop)
+                sprite.position = (16 * i) + (x - 32), (16 * j) + (y - 32)
 
-                SDL_RenderCopy(renderer,
-                               self.border.texture,
-                               border_src,
-                               border_dest)
+                self.sprites.append(sprite)
 
-        for (index, text) in messages.items():
-            self.image = self.render_text(text,
-                                          self.font_path,
-                                          self.text_color,
-                                          self.text_size)
-
-            text_dest = SDL_Rect(x, (y + (self.text_size * index)))
-            text_dest.w = self.text_size * chars[index]
-            text_dest.h = height
-
-            SDL_RenderCopy(renderer,
-                           self.image,
-                           None,
-                           text_dest)

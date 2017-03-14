@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Rect, SDL_RenderCopy
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_Rect, \
+    SDL_RenderCopy
+from sdl2.ext import Resources
 
 from const import WindowSize
 from spell import Spell
@@ -30,12 +31,17 @@ class Facing:
 
 
 class Player:
-    def __init__(self, window, renderer):
+    def __init__(self, renderer, factory):
 
-        self.window = window
         self.renderer = renderer
+        self.factory = factory
 
         self.sprite_size = 128
+
+        x = int((WindowSize.WIDTH / 2) - (self.sprite_size / 2))
+        y = int((WindowSize.HEIGHT / 2) - (self.sprite_size / 2))
+
+        self.sprite_position = x, y
 
         self.player_sprites = [
             RESOURCES.get_path("player_standing.png"),
@@ -43,12 +49,8 @@ class Player:
             RESOURCES.get_path("player_casting.png")
         ]
 
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
-
         self.sprite_sheets = {}
+        self.sprites = []
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
@@ -67,34 +69,39 @@ class Player:
 
         self.inventory = None
 
-
     def init_sprite_sheet(self):
 
         for motion_type in range(MotionType.COUNT):
-            self.load_image(self.player_sprites[motion_type], motion_type)
+            self.loads_image(self.player_sprites[motion_type], motion_type)
 
-    def load_image(self, file_path, motion_type):
+    def loads_image(self, file_path, motion_type):
         sprite_sheets = self.sprite_sheets.get(file_path)
         if not sprite_sheets:
             sprite_surface = self.factory.from_image(file_path)
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, motion_type, facing, elapsed_time):
+        self.sprites.clear()
         self.motion_type = motion_type
         self.facing = facing
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:
                 self.spell_life = self.spell_max_life
-                self.spell = Spell(self.renderer, "fireball", self.facing)
+                self.spell = Spell(self.renderer, self.factory, "fireball", self.facing)
         else:
             self.frame_index += 1
 
         if self.spell_life:
             self.spell_life -= 1
             self.spell.update(elapsed_time)
+            self.sprites.append(self.spell.get_sprite())
         else:
             self.spell = None
+
+        if self.inventory:
+            self.inventory.update(elapsed_time)
+            self.inventory.draw()
 
         if (self.facing != self.last_facing) or (self.motion_type != self.last_motion_type):
             self.frame_index = 0
@@ -105,21 +112,19 @@ class Player:
         self.last_facing = self.facing
         self.last_motion_type = self.motion_type
 
-        if self.inventory:
-            self.inventory.update(elapsed_time)
+        sprite_sheet = self.sprite_sheets[self.motion_type]
 
-    def draw(self):
+        sprite_crop = [self.frame_index * self.sprite_size,
+                       self.facing * self.sprite_size,
+                       self.sprite_size,
+                       self.sprite_size]
 
-        if self.spell_life:
-            self.spell.draw()
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = self.sprite_position
+        self.sprites.append(sprite)
 
-        renderer = self.renderer.renderer
-        motion_type = self.motion_type
-        facing = self.facing
-        frame_index = self.frame_index
-
-        sprite = self.sprite_sheets[motion_type]
-        sprite_size = self.sprite_size
+        """
+        renderer = self.renderer
 
         src_rect = SDL_Rect()
 
@@ -136,18 +141,14 @@ class Player:
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
-
-
-        if self.inventory:
-            self.inventory.draw()
+        """
 
     def toggle_inventory(self):
-
         if self.inventory:
             self.inventory = None
         else:
-            window = self.window
             renderer = self.renderer
-            self.inventory = Inventory(window, renderer)
+            self.inventory = Inventory(renderer)
 
-
+    def get_sprites(self):
+        return self.sprites

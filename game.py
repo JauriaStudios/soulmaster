@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Quit, SDL_GetTicks, SDL_KEYUP, SDL_KEYDOWN, SDL_QUIT,SDL_Delay
-from sdl2 import SDLK_ESCAPE, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_SPACE, SDLK_i
-from sdl2.ext import Resources, get_events
+from sdl2 import SDL_GetTicks, \
+    SDL_KEYUP, \
+    SDL_KEYDOWN, \
+    SDL_QUIT, \
+    SDL_Delay
+from sdl2 import SDLK_ESCAPE, \
+    SDLK_RIGHT, \
+    SDLK_UP, \
+    SDLK_DOWN, \
+    SDLK_LEFT, \
+    SDLK_SPACE, \
+    SDLK_i
+from sdl2.ext import Resources, \
+    get_events
 
 from const import WindowSize
 from input import Input
 from db import DataBase
-from map import TiledRenderer
+from map import Map
 from player import Player, Facing, MotionType
 from npc import NPC
 from enemy import Enemy
@@ -19,83 +30,74 @@ RESOURCES = Resources(__file__, 'resources')
 MAPS = Resources(__file__, 'resources', 'maps')
 
 
-class Game(object):
-    def __init__(self, window, renderer):
+class Game:
+    def __init__(self, world, window, renderer, factory):
 
         self.db = DataBase()
 
+        self.running = False
+        self.world = world
+        self.window = window
+        self.renderer = renderer
+        self.factory = factory
+
+        self.background_tiles = []
+        self.behind_tiles = []
+        self.front_tiles = []
+        self.sprites = []
+
         map_file = MAPS.get_path("map.tmx")
 
-        self.running = False
-        self.window = window
-        self.window_size = window.size
-        self.sdl_renderer = renderer
+        self.map_bg_sprite = Map(map_file)
+        # self.map_behind_sprite = Map(map_file, draw_layer="behind")
 
-        self.map_renderer = TiledRenderer(map_file, self.window, self.sdl_renderer)
-
-        self.player = Player(self.window, self.sdl_renderer)
+        self.player = Player(self.renderer, self.factory)
 
         self.all_npc = []
         self.init_npc("Debug Room")
 
-        self.doombat = Enemy(self.sdl_renderer, "doombat")
+        self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
 
-        self.entities = [
-            self.player,
-            self.doombat
-        ]
+    def init_npc(self, map_name):
 
-        self.player_layer = 0
-        self.enemy_layer = 0
-
-    def __del__(self):
-        SDL_Quit()
-
-    def init_npc(self, map):
-
-        map_data = self.db.get_map_npc(map)
-
+        map_data = self.db.get_map_npc(map_name)
         map_npc = []
 
         for data in map_data:
             map_npc.append(data["npc"])
 
         for npc in map_npc:
-            self.all_npc.append(NPC(self.window, self.sdl_renderer, npc))
+            self.all_npc.append(NPC(self.renderer, self.factory, npc))
 
-    def update(self, position, elapsed_time):
+    def get_sprites(self):
+
+        self.sprites.append(self.map_bg_sprite)
+        # self.sprites.append(self.map_behind_sprite)
+
+        for sprite in self.player.get_sprites():
+            self.sprites.append(sprite)
+
+        for npc in self.all_npc:
+            for sprite in npc.get_sprites():
+                self.sprites.append(sprite)
+
+        for enemy in self.all_enemies:
+            for sprite in enemy.get_sprites():
+                self.sprites.append(sprite)
+
+    def update(self, position, motion_type, facing, elapsed_time):
+
+        self.map_bg_sprite.position = position
+
+        self.player.update(motion_type, facing, elapsed_time)
+
         for npc in self.all_npc:
             npc.update(position, elapsed_time)
 
-    def map_update(self, pos, elapsed_time):
-        self.map_renderer.update(pos, elapsed_time)
-
-    def player_update(self, motion_type, facing, elapsed_time):
-        self.player.update(motion_type, facing, elapsed_time)
-
-    def enemy_update(self, pos, elapsed_time):
-        self.doombat.update(pos, elapsed_time)
-
-    def draw(self):
-        self.sdl_renderer.clear()
-
-        self.map_renderer.render_map("back")
-        self.map_renderer.render_map("up")
-
-        self.player.draw()
-
-        for npc in self.all_npc:
-            npc.draw()
-
-        self.doombat.draw()
-
-        self.map_renderer.render_map("down")
-
-        self.sdl_renderer.present()
+        for enemy in self.all_enemies:
+            enemy.update(position, elapsed_time)
 
     def run(self):
-
-        window = self.window
 
         game_input = Input()
 
@@ -181,16 +183,15 @@ class Game(object):
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            self.update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
-
-            self.map_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
-            self.player_update(motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
-            self.enemy_update(player_pos, min(elapsed_time, MAX_FRAME_TIME))
+            self.update(player_pos, motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 
-            self.draw()
-            window.refresh()
+            self.get_sprites()
+
+            self.renderer.process(self.world, self.sprites)
+
+            self.sprites.clear()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS

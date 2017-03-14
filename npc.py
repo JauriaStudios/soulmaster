@@ -2,13 +2,15 @@
 
 import json
 
-from sdl2 import SDL_Rect, SDL_RenderCopy
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_Rect,\
+    SDL_RenderCopy
+
+from sdl2.ext import Resources
 
 from const import WindowSize, Colors
 from utils import Timer, dice
 from db import DataBase
-from ui import Dialog
+from ui import DialogBox
 
 RESOURCES = Resources(__file__, 'resources')
 
@@ -32,15 +34,15 @@ class Facing:
 
 
 class NPC:
-    def __init__(self, window, renderer, json_data):
+    def __init__(self, renderer, factory, json_data):
 
-        self.dialog_timer = Timer(10000, activated=True)
+        self.dialog_timer = Timer(10000)
         self.close_dialog_timer = Timer(10000)
 
         self.db = DataBase()
 
-        self.window = window
         self.renderer = renderer
+        self.factory = factory
 
         data = json.loads(json_data)
 
@@ -62,12 +64,8 @@ class NPC:
             RESOURCES.get_path("{0}_walking.png".format(self.name))
         ]
 
-        self.factory = SpriteFactory(
-            TEXTURE,
-            renderer=self.renderer
-        )
-
         self.sprite_sheets = {}
+        self.sprites = []
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
@@ -77,12 +75,14 @@ class NPC:
 
         self.frame_index = 0
         self.walk_frames = 60
+        self.move_rate = 100
 
         self.init_sprite_sheet()
 
         self.dialogs = self.db.get_npc_dialog(self.name)
         self.dialog_box = None
-        self.msg = None
+        self.dialog_sprites = []
+        self.text = None
 
     def init_sprite_sheet(self):
         for motion_type in range(MotionType.COUNT):
@@ -97,15 +97,15 @@ class NPC:
     def update(self, position, elapsed_time):
 
         self.position = position
-
+        self.sprites.clear()
         self.frame_index += 1
 
         if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / self.sprite_size):
             self.frame_index = 0
 
         if not self.moving:
-            move = dice(200)
-            if move[0] == 200:
+            move = dice(self.move_rate)
+            if move[0] == self.move_rate - 1:
                 self.moving = True
                 self.walk_frames = 60
                 facing = dice(Facing.COUNT - 1)
@@ -116,39 +116,31 @@ class NPC:
                 self.motion_type = MotionType.WALKING
 
                 if self.facing == 0:
-                    # print("LEFT_DOWN")
                     self.movement[0] -= 2
                     self.movement[1] += 1
                     self.facing = Facing.LEFT_DOWN
                 elif self.facing == 1:
-                    # print("DOWN")
                     self.movement[1] += 1
                     self.facing = Facing.DOWN
                 elif self.facing == 2:
-                    # print("RIGHT_DOWN")
                     self.movement[0] += 2
                     self.movement[1] += 1
                     self.facing = Facing.RIGHT_DOWN
                 elif self.facing == 3:
-                    # print("RIGHT")
                     self.movement[0] += 2
                     self.facing = Facing.RIGHT
                 elif self.facing == 4:
-                    # print("RIGHT_UP")
                     self.movement[0] += 2
                     self.movement[1] -= 1
                     self.facing = Facing.RIGHT_UP
                 elif self.facing == 5:
-                    # print("UP")
                     self.movement[1] -= 1
                     self.facing = Facing.UP
                 elif self.facing == 6:
-                    # print("LEFT_UP")
                     self.movement[0] -= 2
                     self.movement[1] -= 1
                     self.facing = Facing.LEFT_UP
                 elif self.facing == 7:
-                    # print("LEFT")
                     self.movement[0] -= 2
                     self.facing = Facing.LEFT
 
@@ -157,22 +149,25 @@ class NPC:
                 self.moving = False
                 self.motion_type = MotionType.STANDING
 
-        self.dialog_update()
+        x = int((int(self.start_pos[0]) + self.position[0] + self.movement[0]) - (self.sprite_size / 2))
+        y = int((int(self.start_pos[1]) + self.position[1] + self.movement[1]) - (self.sprite_size / 2))
 
-    def draw(self):
+        self.position = x, y
 
-        renderer = self.renderer.renderer
-        motion_type = self.motion_type
-        facing = self.facing
-        frame_index = self.frame_index
-        position = self.position
-        movement = self.movement
+        sprite_sheet = self.sprite_sheets[self.motion_type]
 
-        sprite = self.sprite_sheets[motion_type]
-        sprite_size = self.sprite_size
+        sprite_crop = [self.frame_index * self.sprite_size,
+                       self.facing * self.sprite_size,
+                       self.sprite_size,
+                       self.sprite_size]
 
-        x = int((int(self.start_pos[0]) + position[0] + movement[0]) - (sprite_size / 2))
-        y = int((int(self.start_pos[1]) + position[1] + movement[1]) - (sprite_size / 2))
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = self.position
+
+        self.sprites.append(sprite)
+
+        """
+        renderer = self.renderer
 
         src_rect = SDL_Rect()
 
@@ -189,40 +184,51 @@ class NPC:
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        """
 
-        self.dialog_draw((x, y))
+    def get_sprites(self):
+        return self.sprites
 
     def dialog_update(self):
 
         self.dialog_timer.update()
+        self.close_dialog_timer.update()
 
         if self.dialog_timer.check():
             self.dialog_timer.reset()
             self.close_dialog_timer.activate()
-            self.msg = dice(len(self.dialogs) - 1)
-            self.dialog_box = Dialog(self.window, self.renderer, Colors.WHITE, 16, (10, 400), Colors.BLACK, "smalle.fon")
 
-        self.close_dialog_timer.update()
+            self.create_dialog()
 
         if self.close_dialog_timer.check():
             self.close_dialog_timer.reset()
             self.dialog_timer.activate()
             self.dialog_box = None
+            self.dialog_sprites.clear()
 
-    def dialog_draw(self, position):
+    def create_dialog(self):
 
-        if self.dialog_box:
+        self.text = dice(len(self.dialogs) - 1)
 
-            x, y = position
+        name = self.dialogs[self.text[0]]['npc']
+        text = self.dialogs[self.text[0]]['text']
+        message = {0: "{0}:".format(name)}
 
-            name = self.dialogs[self.msg[0]]['npc']
-            text = self.dialogs[self.msg[0]]['text']
-            message = {0: "{0}:".format(name)}
+        max_chars = 24
+        i = 1
+        for j in range(0, len(text), max_chars):
+            message[i] = text[j:j + max_chars]
+            i += 1
 
-            max_chars = 24
-            i = 1
-            for j in range(0, len(text), max_chars):
-                message[i] = text[j:j+max_chars]
-                i += 1
+        self.dialog_box = DialogBox(self.factory,
+                                    font_size=32,
+                                    fg_color=Colors.WHITE,
+                                    bg_color=Colors.BLACK,
+                                    font_name="04B_20__.TTF",
+                                    text=message,
+                                    position=self.position,
+                                    renderer=self.renderer)
 
-            self.dialog_box.draw(message, (x, y - 100))
+        sprites = self.dialog_box.get_sprites()
+        for sprite in sprites:
+            self.dialog_sprites.append(sprite)

@@ -1,8 +1,21 @@
 # coding=utf-8
 
-from random import randint
+from random import randrange
 
 from sdl2 import SDL_GetTicks
+
+
+def count_chars(text):
+    chars = []
+    i = 0
+    for k, v in text.items():
+        i += 1
+        j = 0
+        for _ in v:
+            j += 1
+        chars.append(j)
+
+    return i, max(chars)
 
 
 def int_map(x, in_min, in_max, out_min, out_max):
@@ -19,7 +32,7 @@ def dict_factory(cursor, row):
 def dice(dice_faces, num=1):
     results = []
     for i in range(num):
-        result = randint(0, dice_faces)
+        result = randrange(0, dice_faces)
         results.append(result)
 
     return results
