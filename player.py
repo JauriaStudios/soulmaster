@@ -81,10 +81,9 @@ class Player:
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, motion_type, facing, elapsed_time):
-
+        self.sprites.clear()
         self.motion_type = motion_type
         self.facing = facing
-        self.sprites.clear()
 
         if (self.motion_type == MotionType.CASTING) and (self.frame_index >= 29):
             if not self.spell_life:

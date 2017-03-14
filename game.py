@@ -99,7 +99,8 @@ class Game(object):
             for sprite in npc.get_sprites():
                 self.sprites.append(sprite)
 
-        # self.doombat.draw()
+        for sprite in self.doombat.get_sprites():
+            self.sprites.append(sprite)
         # self.map_renderer.render_map("down")
 
     def run(self):

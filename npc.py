@@ -162,7 +162,7 @@ class NPC:
                        self.sprite_size]
 
         sprite = sprite_sheet.subsprite(sprite_crop)
-        sprite.position = x, y
+        sprite.position = self.position
 
         self.sprites.append(sprite)
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Rect, SDL_RenderCopy
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_Rect,\
+    SDL_RenderCopy
+from sdl2.ext import Resources
 
 from const import WindowSize
 from utils import dice
@@ -33,10 +34,12 @@ class Enemy:
         self.factory = factory
 
         self.sprite_size = 128
+        self.start_pos = [100, 200]
         self.position = [0, 0]
         self.movement = [0, 0]
 
         self.moving = False
+        self.move_rate = 100
 
         self.enemy_sprites = [
             RESOURCES.get_path("{0}_standing.png".format(name)),
@@ -44,6 +47,7 @@ class Enemy:
         ]
 
         self.sprite_sheets = {}
+        self.sprites = []
 
         self.facing = Facing.LEFT_DOWN
         self.last_facing = self.facing
@@ -67,16 +71,16 @@ class Enemy:
             self.sprite_sheets[motion_type] = sprite_surface
 
     def update(self, position, elapsed_time):
+        self.sprites.clear()
         self.position = position
-
         self.frame_index += 1
 
         if self.frame_index == (self.sprite_sheets[self.motion_type].size[0] / self.sprite_size):
             self.frame_index = 0
 
         if not self.moving:
-            move = dice(200)
-            if move[0] == 200:
+            move = dice(self.move_rate)
+            if move[0] == self.move_rate - 1:
                 self.moving = True
                 self.walk_frames = 60
                 facing = dice(7)
@@ -86,49 +90,48 @@ class Enemy:
             if self.walk_frames:
 
                 if self.facing == 0:
-                    # print("LEFT_DOWN")
                     self.movement[0] -= 2
                     self.movement[1] += 1
                 elif self.facing == 1:
-                    # print("DOWN")
                     self.movement[1] += 1
                 elif self.facing == 2:
-                    # print("RIGHT_DOWN")
                     self.movement[0] += 2
                     self.movement[1] += 1
                 elif self.facing == 3:
-                    # print("RIGHT")
                     self.movement[0] += 2
                 elif self.facing == 4:
-                    # print("RIGHT_UP")
                     self.movement[0] += 2
                     self.movement[1] -= 1
                 elif self.facing == 5:
-                    # print("UP")
                     self.movement[1] -= 1
                 elif self.facing == 6:
-                    # print("LEFT_UP")
                     self.movement[0] -= 2
                     self.movement[1] -= 1
                 elif self.facing == 7:
-                    # print("LEFT")
                     self.movement[0] -= 2
 
                 self.walk_frames -= 1
             else:
                 self.moving = False
 
-    def draw(self):
+        x = int((int(self.start_pos[0]) + self.position[0] + self.movement[0]) - (self.sprite_size / 2))
+        y = int((int(self.start_pos[1]) + self.position[1] + self.movement[1]) - (self.sprite_size / 2))
+
+        self.position = x, y
+
+        sprite_sheet = self.sprite_sheets[self.motion_type]
+
+        sprite_crop = [self.frame_index * self.sprite_size,
+                       self.facing * self.sprite_size,
+                       self.sprite_size,
+                       self.sprite_size]
+
+        sprite = sprite_sheet.subsprite(sprite_crop)
+        sprite.position = self.position
+        self.sprites.append(sprite)
+
+        """
         renderer = self.renderer.renderer
-        motion_type = self.motion_type
-        facing = self.facing
-        frame_index = self.frame_index
-        position = self.position
-        movement = self.movement
-
-        sprite = self.sprite_sheets[motion_type]
-        sprite_size = self.sprite_size
-
         src_rect = SDL_Rect()
 
         src_rect.x = frame_index * sprite_size
@@ -144,3 +147,6 @@ class Enemy:
         dest_rect.h = sprite_size
 
         SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
+        """
+    def get_sprites(self):
+        return self.sprites
