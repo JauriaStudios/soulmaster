@@ -68,19 +68,9 @@ class Game:
         for npc in map_npc:
             self.all_npc.append(NPC(self.renderer, self.factory, npc))
 
-    def update(self, position, motion_type, facing, elapsed_time):
-
-        # self.map.tiles.update(position, elapsed_time)
-
-        self.player.update(motion_type, facing, elapsed_time)
-
-        for npc in self.all_npc:
-            npc.update(position, elapsed_time)
-
-        for enemy in self.all_enemies:
-            enemy.update(position, elapsed_time)
-
     def get_sprites(self):
+
+        self.sprites.append(self.map)
 
         for sprite in self.player.get_sprites():
             self.sprites.append(sprite)
@@ -93,7 +83,18 @@ class Game:
             for sprite in enemy.get_sprites():
                 self.sprites.append(sprite)
 
-        self.sprites.append(self.map)
+    def update(self, position, motion_type, facing, elapsed_time):
+
+        self.map.position = position
+
+        self.player.update(motion_type, facing, elapsed_time)
+
+        for npc in self.all_npc:
+            npc.update(position, elapsed_time)
+
+        for enemy in self.all_enemies:
+            enemy.update(position, elapsed_time)
+
 
     def run(self):
 
