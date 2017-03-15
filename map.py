@@ -17,10 +17,10 @@ from const import WindowSize, Colors
 
 
 class Map(SoftwareSprite):
-    def __init__(self, map_name, draw_layer="background"):
+    def __init__(self, map_name):
         self.tiles = Tiles(map_name)
         self.tiles.update_map()
-        self.surface = self.tiles.get_sprite(draw_layer)
+        self.surface = self.tiles.get_sprite()
         self.free = True
 
         super(Map, self).__init__(self.surface.contents, self.free)
@@ -35,8 +35,6 @@ class Tiles:
         self.position = [0, 0]
 
         self.image_file, _, _ = self.tmx_data.get_tile_image(0, 0, 0)
-
-        self.map_tiles = {}
 
         self.image_file, _, _ = self.tmx_data.get_tile_image(0, 0, 0)
 
@@ -59,85 +57,106 @@ class Tiles:
         for k, v in self.tmx_data.tile_properties.items():
             print("{0}\t{1}".format(k, v))
 
+        self.bg_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                               self.size[0],
+                                               self.size[1],
+                                               32,
+                                               0x000000FF,
+                                               0x0000FF00,
+                                               0x00FF0000,
+                                               0xFF000000)
+
+        self.behind_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                                   self.size[0],
+                                                   self.size[1],
+                                                   32,
+                                                   0x000000FF,
+                                                   0x0000FF00,
+                                                   0x00FF0000,
+                                                   0xFF000000)
+
+        self.front_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                                  self.size[0],
+                                                  self.size[1],
+                                                  32,
+                                                  0x000000FF,
+                                                  0x0000FF00,
+                                                  0x00FF0000,
+                                                  0xFF000000)
+
+        self.lines_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                                  self.size[0],
+                                                  self.size[1],
+                                                  32,
+                                                  0x000000FF,
+                                                  0x0000FF00,
+                                                  0x00FF0000,
+                                                  0xFF000000)
+
     def update_tile_layer(self, layer):
 
         tw = self.tmx_data.tilewidth
         th = self.tmx_data.tileheight
         pos = self.position
-        draw_layer = ""
 
         background = layer.properties['background']
 
         tile_position = [0, 0]
 
-        surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                       self.size[0],
-                                       self.size[1],
-                                       32,
-                                       0x000000FF,
-                                       0x0000FF00,
-                                       0x00FF0000,
-                                       0xFF000000)
-
         # iterate over the tiles in the layer
+        print(background)
         if background == "true":
 
             for x, y, data in layer.tiles():
                 tile_crop = data[1]
 
-                tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2))
-                tile_position[1] = int(((x + y) * th / 2) + pos[1])
+                tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2) - (tw / 2))
+                tile_position[1] = int(((x + y) * th / 2) + pos[1] - 96)
 
                 tile = subsurface(self.tile_set, tile_crop)
 
                 rect = SDL_Rect(tile_position[0], tile_position[1])
 
-                SDL_BlitSurface(tile, None, surface, rect)
+                SDL_BlitSurface(tile, None, self.bg_surface, rect)
 
-            self.tiles["background"] = surface
-        """
         if background == "false":
             for x, y, data in layer.tiles():
                 tile_crop = data[1]
 
                 tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2))
-                tile_position[1] = int(((x + y) * th / 2) + pos[1])
+                tile_position[1] = int(((x + y) * th / 2) + pos[1] - 72)
 
-                if tile_position[1] < (WindowSize.HEIGHT /2) - 72:
+                if tile_position[1] < (WindowSize.HEIGHT / 2) - 72:
                     tile = subsurface(self.tile_set, tile_crop)
                     rect = SDL_Rect(tile_position[0], tile_position[1])
-                    SDL_BlitSurface(tile, None, surface, rect)
-                    draw_layer = "behind"
+                    SDL_BlitSurface(tile, None, self.behind_surface, rect)
                 else:
                     pass
                     tile = subsurface(self.tile_set, tile_crop)
                     rect = SDL_Rect(tile_position[0], tile_position[1])
-                    SDL_BlitSurface(tile, None, surface, rect)
-                    draw_layer = "front"
+                    SDL_BlitSurface(tile, None, self.front_surface, rect)
 
-            self.tiles[draw_layer] = surface
-            """
     def update_map(self):
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, TiledTileLayer):
                 self.update_tile_layer(layer)
 
-                # self.draw_blocking_elements()
+        # self.draw_blocking_elements()
 
-    def get_sprite(self, draw_layer):
-        return self.tiles[draw_layer]
+    def get_sprite(self):
+        return self.bg_surface
 
     """
     def draw_blocking_elements(self):
 
-        surf = self.window.get_surface()
+        surface = self.lines_surface
         color = Colors.RED
         points = []
 
         for block in self.blocking_elements:
             for lines in block.points:
-                points.append(round(lines[0]) + self.pos[0])
-                points.append(round(lines[1]) + self.pos[1])
+                points.append(round(lines[0]) + self.position[0])
+                points.append(round(lines[1]) + self.position[1])
 
-        line(surf, color, points)
+        line(surface, color, points)
     """
