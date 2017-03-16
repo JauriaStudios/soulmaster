@@ -84,13 +84,11 @@ class TextureRenderer(TextureSpriteRenderSystem):
 
 
 def main():
-    screen_size = (WindowSize.WIDTH, WindowSize.HEIGHT)
+    screen_size = WindowSize.WIDTH, WindowSize.HEIGHT
 
     SDL_Init(SDL_INIT_EVERYTHING)
 
-    window = Window("Soul Master",
-                    (WindowSize.WIDTH,
-                     WindowSize.HEIGHT))
+    window = Window("Soul Master", screen_size)
     window.show()
 
     world = World()
@@ -104,7 +102,7 @@ def main():
         texture_renderer = Renderer(window)
         sprite_renderer = TextureRenderer(texture_renderer)
 
-    # world.add_system(sprite_renderer)
+    world.add_system(sprite_renderer)
 
     factory = None
     if RENDERER == "software":
