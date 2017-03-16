@@ -6,7 +6,7 @@
  <tileset firstgid="129" name="proto_tileset" tilewidth="128" tileheight="64" tilecount="168" columns="8">
   <image source="proto_tileset.png" width="1024" height="1344"/>
  </tileset>
- <layer name="Capa de patrones 1" width="25" height="25">
+ <layer name="Background" width="25" height="25">
   <properties>
    <property name="background" type="bool" value="true"/>
   </properties>
