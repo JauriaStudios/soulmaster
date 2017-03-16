@@ -2,6 +2,7 @@
 
 from sdl2 import SDL_Rect,\
     SDL_RenderCopy
+
 from sdl2.ext import Resources
 
 from const import WindowSize

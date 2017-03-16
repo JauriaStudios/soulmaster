@@ -5,9 +5,6 @@ from sdl2 import SDL_Rect, \
     SDL_RenderCopyEx, \
     SDL_FLIP_NONE, \
     SDL_RenderPresent, \
-    SDL_Window, \
-    SDL_WINDOWPOS_CENTERED, \
-    SDL_WINDOW_SHOWN, \
     SDL_Init, \
     SDL_INIT_EVERYTHING
 
@@ -18,7 +15,6 @@ from sdl2.ext import Window, \
     TextureSpriteRenderSystem, \
     Color, \
     SDLError, \
-    init, \
     World, \
     SOFTWARE, \
     TEXTURE, \
