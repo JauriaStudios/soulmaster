@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from copy import copy
-
 from sdl2 import SDL_CreateRGBSurface, \
     SDL_SWSURFACE, \
     SDL_BlitSurface, \
