@@ -4,14 +4,15 @@ from sdl2 import SDL_GetTicks, \
     SDL_KEYUP, \
     SDL_KEYDOWN, \
     SDL_QUIT, \
-    SDL_Delay
-from sdl2 import SDLK_ESCAPE, \
+    SDL_Delay,\
+    SDLK_ESCAPE, \
     SDLK_RIGHT, \
     SDLK_UP, \
     SDLK_DOWN, \
     SDLK_LEFT, \
     SDLK_SPACE, \
     SDLK_i
+
 from sdl2.ext import Resources, \
     get_events
 
@@ -71,7 +72,6 @@ class Game:
     def get_sprites(self):
 
         self.sprites.append(self.map_bg_sprite)
-        #self.sprites.append(self.map_behind_sprite)
 
         for sprite in self.player.get_sprites():
             self.sprites.append(sprite)
@@ -87,7 +87,6 @@ class Game:
     def update(self, position, motion_type, facing, elapsed_time):
 
         self.map_bg_sprite.position = position
-        #self.map_behind_sprite.position = position
 
         self.player.update(motion_type, facing, elapsed_time)
 

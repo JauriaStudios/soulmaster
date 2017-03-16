@@ -29,18 +29,25 @@ class Map(SoftwareSprite):
 class Tiles:
     def __init__(self, map_name):
 
+        self.tile_sets = {}
+
         tm = TiledMap(map_name)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
         self.position = [0, 0]
 
-        self.image_file, _, _ = self.tmx_data.get_tile_image(0, 0, 0)
+        tile_set_name = ""
 
-        self.image_file, _, _ = self.tmx_data.get_tile_image(0, 0, 0)
+        for tile in self.tmx_data.images:
+            if tile is not None:
+                tile_set = tile[0]
+                tile_set_name = tile_set
+                if tile_set not in self.tile_sets:
+                    self.tile_sets[tile_set] = load_image(tile_set)
 
-        self.tile_set = load_image(self.image_file)
-        self.tiles = {}
+        self.tile_set = self.tile_sets[tile_set_name]
 
+        """
         self.blocking_elements = []
 
         print("Objects in map:")
@@ -56,6 +63,7 @@ class Tiles:
         print("GID (tile) properties:")
         for k, v in self.tmx_data.tile_properties.items():
             print("{0}\t{1}".format(k, v))
+        """
 
         self.bg_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
                                                self.size[0],
@@ -65,33 +73,6 @@ class Tiles:
                                                0x0000FF00,
                                                0x00FF0000,
                                                0xFF000000)
-
-        self.behind_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                                   self.size[0],
-                                                   self.size[1],
-                                                   32,
-                                                   0x000000FF,
-                                                   0x0000FF00,
-                                                   0x00FF0000,
-                                                   0xFF000000)
-
-        self.front_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                                  self.size[0],
-                                                  self.size[1],
-                                                  32,
-                                                  0x000000FF,
-                                                  0x0000FF00,
-                                                  0x00FF0000,
-                                                  0xFF000000)
-
-        self.lines_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                                  self.size[0],
-                                                  self.size[1],
-                                                  32,
-                                                  0x000000FF,
-                                                  0x0000FF00,
-                                                  0x00FF0000,
-                                                  0xFF000000)
 
     def update_tile_layer(self, layer):
 
@@ -104,21 +85,22 @@ class Tiles:
         tile_position = [0, 0]
 
         # iterate over the tiles in the layer
-        print(background)
         if background == "true":
 
             for x, y, data in layer.tiles():
+
+                tile_set = data[0]
                 tile_crop = data[1]
 
                 tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2) - (tw / 2))
-                tile_position[1] = int(((x + y) * th / 2) + pos[1] - 96)
+                tile_position[1] = int(((x + y) * th / 2) + pos[1])
 
-                tile = subsurface(self.tile_set, tile_crop)
+                tile = subsurface(self.tile_sets[tile_set], tile_crop)
 
                 rect = SDL_Rect(tile_position[0], tile_position[1])
 
                 SDL_BlitSurface(tile, None, self.bg_surface, rect)
-
+        """
         if background == "false":
             for x, y, data in layer.tiles():
                 tile_crop = data[1]
@@ -135,6 +117,7 @@ class Tiles:
                     tile = subsurface(self.tile_set, tile_crop)
                     rect = SDL_Rect(tile_position[0], tile_position[1])
                     SDL_BlitSurface(tile, None, self.front_surface, rect)
+        """
 
     def update_map(self):
         for layer in self.tmx_data.visible_layers:
