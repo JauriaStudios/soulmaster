@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# Filename:    input.py
+# Created:     03/16/2017
+# Author:      TurBoss
+# E-mail:      j.l.toledano.l@gmail.com
+# License:     GNU GPL 3.0
+# ---------------------------------------------------------------------------
+
+""" Handles input """
 
 from collections import defaultdict
 
