@@ -49,7 +49,6 @@ class Game:
         map_file = MAPS.get_path("map.tmx")
 
         self.map_bg_sprite = Map(map_file)
-        # self.map_behind_sprite = Map(map_file, draw_layer="behind")
 
         self.player = Player(self.renderer, self.factory)
 
@@ -72,7 +71,7 @@ class Game:
     def get_sprites(self):
 
         self.sprites.append(self.map_bg_sprite)
-        # self.sprites.append(self.map_behind_sprite)
+        #self.sprites.append(self.map_behind_sprite)
 
         for sprite in self.player.get_sprites():
             self.sprites.append(sprite)
@@ -88,6 +87,7 @@ class Game:
     def update(self, position, motion_type, facing, elapsed_time):
 
         self.map_bg_sprite.position = position
+        #self.map_behind_sprite.position = position
 
         self.player.update(motion_type, facing, elapsed_time)
 
