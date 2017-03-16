@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_FreeSurface, \
-    SDL_CreateRGBSurface, \
+from sdl2 import SDL_CreateRGBSurface, \
     SDL_SWSURFACE, \
     SDL_BlitSurface, \
     SDL_Rect
 
-from sdl2.ext import line, \
+from sdl2.ext import Resources,\
     load_image, \
     subsurface, \
     SoftwareSprite
 
-from pytmx import TiledTileLayer, TiledMap
+from pytmx import TiledTileLayer, TiledMap, convert_to_bool
 
-from const import WindowSize, Colors
+MAPS = Resources(__file__, 'resources', 'maps')
 
 
 class Map(SoftwareSprite):
@@ -36,16 +35,10 @@ class Tiles:
         self.tmx_data = tm
         self.position = [0, 0]
 
-        tile_set_name = ""
-
-        for tile in self.tmx_data.images:
-            if tile is not None:
-                tile_set = tile[0]
-                tile_set_name = tile_set
-                if tile_set not in self.tile_sets:
-                    self.tile_sets[tile_set] = load_image(tile_set)
-
-        self.tile_set = self.tile_sets[tile_set_name]
+        for tile_set in self.tmx_data.tilesets:
+            name = tile_set.name
+            tile_set_path = MAPS.get_path("{0}.png".format(name))
+            self.tile_sets[tile_set_path] = load_image(tile_set_path)
 
         """
         self.blocking_elements = []
@@ -80,26 +73,24 @@ class Tiles:
         th = self.tmx_data.tileheight
         pos = self.position
 
-        background = layer.properties['background']
-
         tile_position = [0, 0]
 
-        # iterate over the tiles in the layer
-        if background == "true":
+        if "background" in layer.properties:
+            background = convert_to_bool(layer.properties['background'])
+            if background:
+                for x, y, data in layer.tiles():
+                    tile_set = data[0]
+                    tile_crop = data[1]
 
-            for x, y, data in layer.tiles():
+                    tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2) - (tw / 2))
+                    tile_position[1] = int(((x + y) * th / 2) + pos[1])
 
-                tile_set = data[0]
-                tile_crop = data[1]
+                    tile = subsurface(self.tile_sets[tile_set], tile_crop)
 
-                tile_position[0] = int(((x - y) * tw / 2) + pos[0] + (self.size[0] / 2) - (tw / 2))
-                tile_position[1] = int(((x + y) * th / 2) + pos[1])
+                    rect = SDL_Rect(tile_position[0], tile_position[1])
 
-                tile = subsurface(self.tile_sets[tile_set], tile_crop)
+                    SDL_BlitSurface(tile, None, self.bg_surface, rect)
 
-                rect = SDL_Rect(tile_position[0], tile_position[1])
-
-                SDL_BlitSurface(tile, None, self.bg_surface, rect)
         """
         if background == "false":
             for x, y, data in layer.tiles():
