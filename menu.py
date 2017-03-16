@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Delay,\
-    SDL_GetTicks,\
-    SDL_KEYDOWN,\
-    SDL_KEYUP,\
-    SDL_QUIT,\
-    SDL_Rect,\
-    SDL_RenderCopy,\
-    SDLK_ESCAPE,\
-    SDLK_UP,\
-    SDLK_DOWN,\
-    SDLK_RETURN,\
+from sdl2 import SDL_Delay, \
+    SDL_GetTicks, \
+    SDL_KEYDOWN, \
+    SDL_KEYUP, \
+    SDL_QUIT, \
+    SDL_Rect, \
+    SDL_RenderCopy, \
+    SDLK_ESCAPE, \
+    SDLK_UP, \
+    SDLK_DOWN, \
+    SDLK_RETURN, \
     SDL_Quit
 
-from sdl2.ext import Resources,\
+from sdl2.ext import Resources, \
     get_events
 
 from const import WindowSize, Colors
 from input import Input
-from ui import DialogBox
+from ui import Dialog
 from game import Game
 
 FPS = 60  # units.FPS
@@ -51,21 +51,23 @@ class Menu:
                      1: "OPTIONS",
                      2: "EXIT"}
 
-        self.dialog = DialogBox(self.factory,
-                                font_size=32,
-                                fg_color=Colors.WHITE,
-                                bg_color=Colors.BLACK,
-                                font_name="04B_20__.TTF",
-                                text=self.text,
-                                position=self.position,
-                                renderer=self.renderer)
+        self.dialog = Dialog(self.factory,
+                             font_size=32,
+                             fg_color=Colors.WHITE,
+                             bg_color=Colors.BLACK,
+                             font_name="04B_20__.TTF",
+                             text=self.text,
+                             position=self.position,
+                             renderer=self.renderer)
 
         self.sprites = [self.background_sprite]
 
-        sprites = self.dialog.get_sprites()
+        dialog_decoration_sprites = self.dialog.get_decoration_sprites()
+        self.sprites.append(dialog_decoration_sprites)
+        text_sprites = self.dialog.get_text_sprites()
 
-        for sprite in sprites:
-            self.sprites.append(sprite)
+        for line in text_sprites:
+            self.sprites.append(line)
 
         self.sprites.append(self.cursor_sprite)
 
@@ -73,8 +75,8 @@ class Menu:
         SDL_Quit()
 
     def update(self, elapsed_time):
-        self.cursor_sprite.position = self.cursor_start_position[0], self.cursor_start_position[1] \
-                                      + self.cursor_position * self.cursor_sprite_size
+        self.cursor_sprite.position = self.cursor_start_position[0],\
+                                      self.cursor_start_position[1] + self.cursor_position * self.cursor_sprite_size
 
     def run(self):
         menu_input = Input()
@@ -123,7 +125,7 @@ class Menu:
 
             last_update_time = current_time
 
-            self.renderer.render(self.sprites)
+            self.renderer.process(self.world, self.sprites)
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS

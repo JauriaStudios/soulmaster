@@ -2,11 +2,14 @@
 
 from sdl2 import SDL_ClearError, \
     SDL_CreateTextureFromSurface, \
+    SDL_CreateRGBSurface, \
     SDL_FreeSurface, \
     SDL_RenderCopy, \
     SDL_Rect, \
     SDL_Color, \
-    SDL_DestroyTexture
+    SDL_DestroyTexture, \
+    SDL_SWSURFACE, \
+    SDL_BlitSurface
 
 from sdl2.sdlttf import TTF_Init, \
     TTF_RenderText_Blended, \
@@ -21,7 +24,9 @@ from sdl2.ext import Resources, \
     SoftwareSprite, \
     SoftwareSpriteRenderSystem, \
     SDLError, \
-    FontManager
+    FontManager, \
+    load_image, \
+    subsurface
 
 from const import Colors
 from utils import count_chars
@@ -136,73 +141,56 @@ class TextSprite(TextureSprite):
         self._update_texture()
 
 
-class DialogBox:
+class Dialog:
     def __init__(self, factory, *args, **kwargs):
-
-        self.factory = factory
-
-        self.font_size = kwargs['font_size']
-        self.fg_color = kwargs['fg_color']
-        self.bg_color = kwargs['bg_color']
-        self.font_name = kwargs['font_name']
-        self.text = kwargs['text']
         self.position = kwargs['position']
-        self.renderer = kwargs['renderer']
 
-        self.sprites = []
+        self.dialog_box = DialogBox(factory, *args, **kwargs)
 
-        self.lines = len(self.text.items())
+        self.lines = self.dialog_box.lines
+        self.font_size = self.dialog_box.font_size
+
+        self.text = self.dialog_box.get_sprites()
+
+        self.decoration = DialogDecorations(self.lines, self.font_size)
+        self.decoration.position = self.position[0] - 32, self.position[1] - 32
+
+    def get_decoration_sprites(self):
+        return self.decoration
+
+    def get_text_sprites(self):
+        return self.text
+
+
+class DialogDecorations(SoftwareSprite):
+    def __init__(self, lines, font_size):
+
+        self.free = True
 
         border_sprite_sheet_path = RESOURCES.get_path("dialog_border.png")
-        self.border_sprite_sheet = self.factory.from_image(border_sprite_sheet_path)
+        self.border_sprite_sheet = load_image(border_sprite_sheet_path)
 
-        self.create_decoration_sprites()
+        self.surface = self.create_surface(lines, font_size)
 
-        for i in range(self.lines):
-            self.create_text_sprites(i)
-        super(DialogBox, self).__init__()
+        super(DialogDecorations, self).__init__(self.surface.contents, self.free)
 
-    def create_text_sprites(self, line):
+    def create_surface(self, lines, font_size):
 
-        text_sprite = None
-
-        if isinstance(self.renderer, SoftwareSpriteRenderSystem):
-            text_sprite = SoftSprite(self.renderer, self.font_name, self.text[line],
-                                     font_size=self.font_size,
-                                     text_color=self.fg_color,
-                                     background_color=self.bg_color)
-
-        elif isinstance(self.renderer, TextureSpriteRenderSystem):
-            text_sprite = TextSprite(self.renderer, self.font_name, self.text[line],
-                                     font_size=self.font_size,
-                                     text_color=self.fg_color,
-                                     background_color=self.bg_color)
-
-        text_sprite.x = self.position[0]
-        text_sprite.y = self.position[1] + (self.font_size * line)
-        self.sprites.append(text_sprite)
-
-    def get_sprites(self):
-        return self.sprites
-
-    def create_decoration_sprites(self):
-
-        max_chars = 32
-        lines = self.lines
+        max_chars = 8
         tile_size = 16
+        offset = tile_size * 4
 
-        width = self.font_size * max_chars
-        height = self.font_size * lines
+        width = font_size * max_chars
+        height = font_size * lines
 
-        x = self.position[0]
-        y = self.position[1]
-
-        background = self.factory.from_color(Colors.BLACK,
-                                             size=(width + (tile_size * 2),
-                                                   height + (tile_size * 2)))
-        background.position = x - tile_size, y - tile_size
-
-        self.sprites.append(background)
+        surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                       width + offset,
+                                       height + offset,
+                                       32,
+                                       0x000000FF,
+                                       0x0000FF00,
+                                       0x00FF0000,
+                                       0xFF000000)
 
         cols = int(width / tile_size) + 3
         rows = int(height / tile_size) + 3
@@ -239,8 +227,56 @@ class DialogBox:
                     sprite_crop[0] = 16
                     sprite_crop[1] = 16
 
-                sprite = self.border_sprite_sheet.subsprite(sprite_crop)
-                sprite.position = (16 * i) + (x - 32), (16 * j) + (y - 32)
+                rect = SDL_Rect((16 * i), (16 * j))
+                tile = subsurface(self.border_sprite_sheet, sprite_crop)
+                SDL_BlitSurface(tile, None, surface, rect)
 
-                self.sprites.append(sprite)
+        return surface
 
+
+class DialogBox:
+    def __init__(self, factory, *args, **kwargs):
+
+        self.factory = factory
+
+        self.font_size = kwargs['font_size']
+        self.fg_color = kwargs['fg_color']
+        self.bg_color = kwargs['bg_color']
+        self.font_name = kwargs['font_name']
+        self.text = kwargs['text']
+        self.position = kwargs['position']
+        self.renderer = kwargs['renderer']
+
+        self.sprites = []
+        self.surface = None
+
+        self.lines = len(self.text.items())
+
+        for i in range(self.lines):
+            self.create_text_sprites(i)
+
+        super(DialogBox, self).__init__()
+
+    def create_text_sprites(self, line):
+
+        text_sprite = None
+
+        if isinstance(self.renderer, SoftwareSpriteRenderSystem):
+            text_sprite = SoftSprite(self.renderer, self.font_name, self.text[line],
+                                     font_size=self.font_size,
+                                     text_color=self.fg_color,
+                                     background_color=self.bg_color)
+
+        elif isinstance(self.renderer, TextureSpriteRenderSystem):
+            text_sprite = TextSprite(self.renderer, self.font_name, self.text[line],
+                                     font_size=self.font_size,
+                                     text_color=self.fg_color,
+                                     background_color=self.bg_color)
+
+        text_sprite.x = self.position[0]
+        text_sprite.y = self.position[1] + (self.font_size * line)
+
+        self.sprites.append(text_sprite)
+
+    def get_sprites(self):
+        return self.sprites
