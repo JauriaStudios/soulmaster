@@ -12,46 +12,45 @@ from sdl2.ext import Resources, \
 
 from const import WindowSize
 from components.frames import Frames
+from components.motion import MotionType
+from components.facing import Facing
 from spell import Spell
 from inventory import Inventory
 
 RESOURCES = Resources(__file__, 'resources')
 
 
-class MotionType:
-    STANDING = 0
-    WALKING = 1
-    CASTING = 2
-    COUNT = 3
+class Player(Entity):
+    def __init__(self, world):
+        self.frames = Frames()
+        self.motion_types = MotionType()
+        self.facing = Facing()
+
+        player_sprite_sheet = PlayerSpriteSheet()
+        self.sprite = SoftwareSprite(player_sprite_sheet.get_surface(), True)
+
+        self.player_data = PlayerData()
 
 
-class Facing:
-    LEFT_DOWN = 0
-    DOWN = 1
-    RIGHT_DOWN = 2
-    RIGHT = 3
-    RIGHT_UP = 4
-    UP = 5
-    LEFT_UP = 6
-    LEFT = 7
-    COUNT = 8
+class PlayerData:
+    def __init__(self):
+        super(PlayerData, self).__init__()
+        self.life = 100
 
 
-class PlayerSprites(SoftwareSprite):
+class PlayerSpriteSheet:
     """ Player sprite sheet """
     def __init__(self):
+        super(PlayerSpriteSheet, self).__init__()
 
-        self.free = True
-
+        self.motion_type = MotionType()
+        self.motion_types = self.motion_type.get_all()
         self.sprite_size = 128, 128
 
-        self.motion_types = {MotionType.STANDING: "standing",
-                             MotionType.WALKING: "walking",
-                             MotionType.CASTING: "casting"}
         self.sprites_path = {}
 
         for k, v in self.motion_types.items():
-            self.sprites_path[k] = RESOURCES.get_path("{0}_{1}.png".format("player", v))
+            self.sprites_path[v] = RESOURCES.get_path("{0}_{1}.png".format("player", k))
 
         self.surfaces = {}
         self.surfaces_size = {}
@@ -81,11 +80,5 @@ class PlayerSprites(SoftwareSprite):
             SDL_BlitSurface(surface, None, self.surface, rect)
             i += 1
 
-        super(PlayerSprites, self).__init__(self.surface.contents, self.free)
-
-
-class Player(Entity):
-    def __init__(self, world, x=0, y=0):
-
-        self.frames = Frames()
-        self.sprite = PlayerSprites()
+    def get_surface(self):
+        return self.surface.contents

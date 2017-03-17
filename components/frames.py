@@ -3,11 +3,11 @@ class Frames:
         super(Frames, self).__init__()
         self.frame = 0
 
-    def get_frame(self):
+    def get(self):
         return self.frame
 
-    def set_frame(self, frame):
+    def set(self, frame):
         self.frame = frame
 
-    def bump_frame(self):
+    def bump(self):
         self.frame += 1
