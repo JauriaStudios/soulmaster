@@ -15,8 +15,8 @@ from sdl2 import SDL_Color
 class WindowSize:
     """ Window width and height """
 
-    WIDTH = 800
-    HEIGHT = 600
+    WIDTH = 1024
+    HEIGHT = 768
 
 
 class Colors:

@@ -98,8 +98,6 @@ def main():
         texture_renderer = Renderer(window)
         sprite_renderer = TextureRenderer(texture_renderer)
 
-    world.add_system(sprite_renderer)
-
     factory = None
     if RENDERER == "software":
         factory = SpriteFactory(SOFTWARE)

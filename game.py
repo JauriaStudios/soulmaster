@@ -19,8 +19,9 @@ from sdl2.ext import Resources, \
 from const import WindowSize
 from input import Input
 from db import DataBase
+from animation import AnimationSystem
 from map import Map
-from player import Player, Facing, MotionType
+from player import Player, PlayerSprites, Facing, MotionType
 from npc import NPC
 from enemy import Enemy
 
@@ -50,15 +51,21 @@ class Game:
         map_file = MAPS.get_path("map.tmx")
 
         self.map_background_sprite = Map(map_file, "background")
-        # self.map_behind_sprite = Map(map_file, "behind")
-        # self.map_front_sprite = Map(map_file, "front")
 
-        self.player = Player(self.renderer, self.factory)
+        self.player_motion_type = MotionType.STANDING
+        self.player_facing = Facing.UP
 
-        self.all_npc = []
-        self.init_npc("Debug Room")
+        self.player_animation = AnimationSystem(self.player_motion_type, self.player_facing, (128, 128))
+        self.world.add_system(self.player_animation)
 
-        self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
+        self.player = Player(self.world)
+
+        # self.all_npc = []
+        # self.init_npc("Debug Room")
+
+        # self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
+
+        self.world.add_system(self.renderer)
 
     def init_npc(self, map_name):
 
@@ -76,9 +83,6 @@ class Game:
         self.sprites.append(self.map_background_sprite)
         # self.sprites.append(self.map_behind_sprite)
 
-        for sprite in self.player.get_sprites():
-            self.sprites.append(sprite)
-
         # self.sprites.append(self.map_front_sprite)
 
         for npc in self.all_npc:
@@ -94,7 +98,7 @@ class Game:
         self.map_background_sprite.position = position
         # self.map_behind_sprite.position = position
 
-        self.player.update(motion_type, facing, elapsed_time)
+        # self.player.update(motion_type, facing, elapsed_time)
 
         for npc in self.all_npc:
             npc.update(position, elapsed_time)
@@ -107,10 +111,10 @@ class Game:
         game_input = Input()
 
         speed_x, speed_y = 2, 1
-        player_pos = [0, 0]
+        player_pos = [-600, -200]
 
-        motion_type = self.player.motion_type
-        facing = self.player.facing
+        motion_type = self.player_motion_type
+        facing = self.player_facing
 
         running = True
         last_update_time = SDL_GetTicks()  # units.MS
@@ -174,8 +178,8 @@ class Game:
                 motion_type = MotionType.WALKING
                 facing = Facing.DOWN
 
-            elif game_input.was_key_pressed(SDLK_i):
-                self.player.toggle_inventory()
+            # elif game_input.was_key_pressed(SDLK_i):
+            #    self.player.toggle_inventory()
 
             # Player Attack
             elif game_input.is_key_held(SDLK_SPACE):
@@ -188,15 +192,17 @@ class Game:
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            self.update(player_pos, motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
+            # self.update(player_pos, motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
 
             last_update_time = current_time
 
-            self.get_sprites()
+            # self.get_sprites()
 
-            self.renderer.process(self.world, self.sprites)
+            # self.renderer.process(self.world, self.sprites)
 
-            self.sprites.clear()
+            self.world.process()
+
+            # self.sprites.clear()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS
