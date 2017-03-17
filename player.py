@@ -11,7 +11,7 @@ from sdl2.ext import Resources, \
     load_image
 
 from const import WindowSize
-from animation import Frames
+from components.frames import Frames
 from spell import Spell
 from inventory import Inventory
 

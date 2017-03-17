@@ -10,20 +10,16 @@ from sdl2 import SDL_GetTicks, \
     SDLK_UP, \
     SDLK_DOWN, \
     SDLK_LEFT, \
-    SDLK_SPACE, \
-    SDLK_i
-
+    SDLK_SPACE
 from sdl2.ext import Resources, \
     get_events
 
-from const import WindowSize
-from input import Input
 from db import DataBase
-from animation import AnimationSystem
+from input import Input
 from map import Map
-from player import Player, PlayerSprites, Facing, MotionType
 from npc import NPC
-from enemy import Enemy
+from player import Player, Facing, MotionType
+from systems.animation import AnimationSystem
 
 FPS = 30  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
