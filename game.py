@@ -48,10 +48,11 @@ class Game:
 
         self.map_background_sprite = Map(map_file, "background")
 
-        self.player_animation = PlayerAnimationSystem()
+        self.player = Player(self.world)
+
+        self.player_animation = PlayerAnimationSystem(self.player)
         self.world.add_system(self.player_animation)
 
-        self.player = Player(self.world)
 
         # self.all_npc = []
         # self.init_npc("Debug Room")

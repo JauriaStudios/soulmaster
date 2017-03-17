@@ -3,7 +3,6 @@
 from sdl2.ext import Resources, \
     Entity
 
-from const import WindowSize
 from components.spritesheet import SpriteSheet
 from components.frames import Frames
 from components.motion import MotionType
@@ -17,11 +16,9 @@ RESOURCES = Resources(__file__, 'resources')
 
 class Player(Entity):
     def __init__(self, world):
+
         self.sprite = SpriteSheet().get_sprite(0, 0, 0)
 
-        x, y = int(WindowSize.WIDTH / 2) - 64, int(WindowSize.HEIGHT / 2) - 64
-
-        self.sprite.position = x, y
 
         self.frames = Frames()
         self.motion_types = MotionType()

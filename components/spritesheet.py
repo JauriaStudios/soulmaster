@@ -77,3 +77,6 @@ class SpriteSheet:
 
         self.sprite = SoftwareSprite(surface, True)
         return self.sprite
+
+    def get_sprite_sheet_width(self, motion_type):
+        return self.surfaces[motion_type].w
