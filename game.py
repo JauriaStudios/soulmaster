@@ -19,7 +19,7 @@ from input import Input
 from map import Map
 from npc import NPC
 from player import Player, MotionType
-from systems.animation import AnimationSystem
+from systems.animation import PlayerAnimationSystem
 
 FPS = 30  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
@@ -48,7 +48,7 @@ class Game:
 
         self.map_background_sprite = Map(map_file, "background")
 
-        self.player_animation = AnimationSystem()
+        self.player_animation = PlayerAnimationSystem()
         self.world.add_system(self.player_animation)
 
         self.player = Player(self.world)
@@ -187,17 +187,9 @@ class Game:
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS
 
-            # self.update(player_pos, motion_type, facing, min(elapsed_time, MAX_FRAME_TIME))
-
             last_update_time = current_time
 
-            # self.get_sprites()
-
-            # self.renderer.process(self.world, self.sprites)
-
             self.world.process()
-
-            # self.sprites.clear()
 
             # This loop lasts 1/60th of a second, or 1000/60th ms
             ms_per_frame = 1000 // FPS  # units.MS

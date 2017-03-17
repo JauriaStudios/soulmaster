@@ -10,15 +10,18 @@
 from sdl2.ext import Applicator, \
     SoftwareSprite
 
+from components.spritesheet import SpriteSheet
 from components.frames import Frames
 from components.motion import MotionType
 from components.facing import Facing
 
 
-class AnimationSystem(Applicator):
+class PlayerAnimationSystem(Applicator):
     def __init__(self):
-        super(AnimationSystem, self).__init__()
+        super(PlayerAnimationSystem, self).__init__()
         self.componenttypes = (Frames, MotionType, Facing, SoftwareSprite)
+
+        self.sprite_sheet = SpriteSheet()
 
         self.motion_type = "standing"
         self.facing = "down"
@@ -39,12 +42,5 @@ class AnimationSystem(Applicator):
 
             self.last_facing = self.facing
             self.last_motion_type = self.motion_type
-
-            sprite_crop = (frames.get() * 128,
-                           self.facing * 128,
-                           128,
-                           128)
-
-            sprite.subsprite(sprite_crop)
-
+            # sprite = self.sprite_sheet.get_sprite(frames.get(), motion_type.get(), facing.get())
             frames.bump()
