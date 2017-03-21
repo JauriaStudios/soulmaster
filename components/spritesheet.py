@@ -29,6 +29,7 @@ class SpriteSheet:
         self.facing = 0
 
         self.sprite = None
+        self.sprite_surface = None
 
         self.sprite_size = 128, 128
 
@@ -65,7 +66,7 @@ class SpriteSheet:
             SDL_BlitSurface(surface, None, self.surface, rect)
             i += 1
 
-    def get_sprite(self, frame, motion_type, facing):
+    def get_surface(self, frame, motion_type, facing):
 
         self.frame = frame
         self.motion_type = motion_type
@@ -73,10 +74,14 @@ class SpriteSheet:
 
         crop = self.frame * 128, self.facing * 128, 128, 128
 
-        surface = subsurface(self.surface.contents, crop)
+        self.sprite_surface = subsurface(self.surface.contents, crop)
 
-        self.sprite = SoftwareSprite(surface, True)
-        return self.sprite
+        return self.sprite_surface
+
+    def get_sprite(self):
+        surface = self.get_surface(0, 0, 0)
+
+        return SoftwareSprite(surface, True)
 
     def get_sprite_sheet_width(self, motion_type):
         return self.surfaces[motion_type].w

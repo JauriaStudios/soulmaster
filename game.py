@@ -14,12 +14,14 @@ from sdl2 import SDL_GetTicks, \
 from sdl2.ext import Resources, \
     get_events
 
+from const import WindowSize
 from db import DataBase
 from input import Input
 from map import Map
 from npc import NPC
 from player import Player, MotionType
 from systems.animation import PlayerAnimationSystem
+from systems.movement import MovementSystem
 
 FPS = 30  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
@@ -44,15 +46,20 @@ class Game:
         self.front_tiles = []
         self.sprites = []
 
+        x = int(WindowSize.WIDTH / 2)
+        y = int(WindowSize.HEIGHT / 2)
+
         map_file = MAPS.get_path("map.tmx")
 
         self.map_background_sprite = Map(map_file, "background")
 
-        self.player = Player(self.world)
+        self.player = Player(self.world, 0, 0)
 
-        self.player_animation = PlayerAnimationSystem(self.player)
+        self.player_animation = PlayerAnimationSystem()
+        self.movement = MovementSystem(0, 0, 1024, 768)
+
         self.world.add_system(self.player_animation)
-
+        self.world.add_system(self.movement)
 
         # self.all_npc = []
         # self.init_npc("Debug Room")
@@ -105,15 +112,15 @@ class Game:
         game_input = Input()
 
         speed_x, speed_y = 2, 1
-        player_pos = [-600, -200]
+        player_pos = [-100, -100]
 
         # motion_type = self.player_motion_type
         # facing = self.player_facing
 
-        running = True
+        self.running = True
         last_update_time = SDL_GetTicks()  # units.MS
 
-        while running:
+        while self.running:
             start_time = SDL_GetTicks()  # units.MS
 
             game_input.begin_new_frame()
@@ -127,48 +134,60 @@ class Game:
                     game_input.key_up_event(event)
 
                 elif event.type == SDL_QUIT:
-                    running = False
+                    self.running = False
                     break
 
             # Exit
             if game_input.was_key_pressed(SDLK_ESCAPE):
-                running = False
+                self.running = False
 
             # Player movement
             if game_input.is_key_held(SDLK_RIGHT) and game_input.is_key_held(SDLK_UP):
                 player_pos[0] -= speed_x
                 player_pos[1] += speed_y
+                self.player.velocity.vx = speed_x
+                self.player.velocity.vy = -speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.RIGHT_UP
             elif game_input.is_key_held(SDLK_RIGHT) and game_input.is_key_held(SDLK_DOWN):
                 player_pos[0] -= speed_x
                 player_pos[1] -= speed_y
+                self.player.velocity.vx = speed_x
+                self.player.velocity.vy = speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.RIGHT_DOWN
             elif game_input.is_key_held(SDLK_LEFT) and game_input.is_key_held(SDLK_UP):
                 player_pos[0] += speed_x
                 player_pos[1] += speed_y
+                self.player.velocity.vx = -speed_x
+                self.player.velocity.vy = -speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.LEFT_UP
             elif game_input.is_key_held(SDLK_LEFT) and game_input.is_key_held(SDLK_DOWN):
                 player_pos[0] += speed_x
                 player_pos[1] -= speed_y
+                self.player.velocity.vx = -speed_x
+                self.player.velocity.vy = speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.LEFT_DOWN
             elif game_input.is_key_held(SDLK_LEFT):
                 player_pos[0] += speed_x
+                self.player.velocity.vx = -speed_x
                 # motion_type = MotionType.WALKING
                 # facing = Facing.LEFT
             elif game_input.is_key_held(SDLK_RIGHT):
                 player_pos[0] -= speed_x
+                self.player.velocity.vx = speed_x
                 # motion_type = MotionType.WALKING
                 # facing = Facing.RIGHT
             elif game_input.is_key_held(SDLK_UP):
                 player_pos[1] += speed_y
+                self.player.velocity.vy = -speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.UP
             elif game_input.is_key_held(SDLK_DOWN):
                 player_pos[1] -= speed_y
+                self.player.velocity.vy = speed_y
                 # motion_type = MotionType.WALKING
                 # facing = Facing.DOWN
 
@@ -182,7 +201,8 @@ class Game:
 
             # Nothing
             else:
-                pass
+                self.player.velocity.vx = 0
+                self.player.velocity.vy = 0
                 # motion_type = MotionType.STANDING
 
             current_time = SDL_GetTicks()  # units.MS

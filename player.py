@@ -11,18 +11,22 @@ from components.facing import Facing
 from spell import Spell
 from inventory import Inventory
 
+from components.velocity import Velocity
+
 RESOURCES = Resources(__file__, 'resources')
 
 
 class Player(Entity):
-    def __init__(self, world):
+    def __init__(self, world, posx=0, posy=0):
 
-        self.sprite = SpriteSheet().get_sprite(0, 0, 0)
-
+        self.sprite = SpriteSheet().get_sprite()
+        self.sprite.position = posx, posy
 
         self.frames = Frames()
         self.motion_types = MotionType()
         self.facing = Facing()
+
+        self.velocity = Velocity()
 
         self.player_data = PlayerData()
 

@@ -7,9 +7,12 @@
 # License:     GNU GPL 3.0
 # ---------------------------------------------------------------------------
 
-from sdl2.ext import Applicator
+from sdl2 import SDL_BlitSurface, \
+    SDL_Rect, \
+    SDL_FillRect
 
-from const import WindowSize
+from sdl2.ext import Applicator, \
+    Sprite
 
 from components.spritesheet import SpriteSheet
 from components.frames import Frames
@@ -18,11 +21,9 @@ from components.facing import Facing
 
 
 class PlayerAnimationSystem(Applicator):
-    def __init__(self, player):
+    def __init__(self,):
         super(PlayerAnimationSystem, self).__init__()
-        self.componenttypes = Frames, MotionType, Facing
-
-        self.player = player
+        self.componenttypes = Frames, MotionType, Facing, Sprite
 
         self.sprite_sheet = SpriteSheet()
 
@@ -31,8 +32,11 @@ class PlayerAnimationSystem(Applicator):
         self.last_facing = self.facing
         self.last_motion_type = self.motion_type
 
+        self.surface = None
+        self.sprite_surface = None
+
     def process(self, world, componentsets):
-        for frames, motion_type, facing in componentsets:
+        for frames, motion_type, facing , sprite in componentsets:
 
             self.facing = facing.get()
             self.motion_type = motion_type.get()
@@ -46,7 +50,11 @@ class PlayerAnimationSystem(Applicator):
             self.last_facing = self.facing
             self.last_motion_type = self.motion_type
 
-            self.player.sprite = self.sprite_sheet.get_sprite(frames.get(), motion_type.get(), facing.get())
-            self.player.sprite.position = int(WindowSize.WIDTH / 2) - 64, int(WindowSize.HEIGHT / 2) - 64
+            self.surface = self.sprite_sheet.get_surface(frames.get(), motion_type.get(), facing.get())
+            self.sprite_surface = sprite.surface
+
+            rect = SDL_Rect(0, 0)
+            SDL_FillRect(self.sprite_surface, None, 0x000000)
+            SDL_BlitSurface(self.surface, None, self.sprite_surface, rect)
 
             frames.bump()
