@@ -53,10 +53,10 @@ class Game:
 
         self.map_background_sprite = Map(map_file, "background")
 
-        self.player = Player(self.world, 0, 0)
+        self.player = Player(self.world, x - 64, y - 64)
 
         self.player_animation = PlayerAnimationSystem()
-        self.movement = MovementSystem(0, 0, 1024, 768)
+        self.movement = MovementSystem(x - 128, y - 128, x + 128, y + 128)
 
         self.world.add_system(self.player_animation)
         self.world.add_system(self.movement)
