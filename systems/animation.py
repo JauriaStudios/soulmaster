@@ -21,11 +21,11 @@ from components.facing import Facing
 
 
 class PlayerAnimationSystem(Applicator):
-    def __init__(self,):
+    def __init__(self, name):
         super(PlayerAnimationSystem, self).__init__()
         self.componenttypes = Frames, MotionType, Facing, Sprite
 
-        self.sprite_sheet = SpriteSheet()
+        self.sprite_sheet = SpriteSheet(name)
 
         self.motion_type = "standing"
         self.facing = "down"
@@ -36,7 +36,7 @@ class PlayerAnimationSystem(Applicator):
         self.sprite_surface = None
 
     def process(self, world, componentsets):
-        for frames, motion_type, facing , sprite in componentsets:
+        for frames, motion_type, facing, sprite in componentsets:
 
             self.facing = facing.get()
             self.motion_type = motion_type.get()

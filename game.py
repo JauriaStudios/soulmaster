@@ -19,7 +19,8 @@ from db import DataBase
 from input import Input
 from map import Map
 from npc import NPC
-from player import Player, MotionType
+from player import Player
+from components.spritesheet import SpriteSheet
 from systems.animation import PlayerAnimationSystem
 from systems.movement import MovementSystem
 
@@ -52,10 +53,10 @@ class Game:
         map_file = MAPS.get_path("map.tmx")
 
         self.map_background_sprite = Map(map_file, "background")
+        self.player_sprite = SpriteSheet("player").get_sprite()
+        self.player = Player(self.world, self.player_sprite, x - 64, y - 64)
 
-        self.player = Player(self.world, x - 64, y - 64)
-
-        self.player_animation = PlayerAnimationSystem()
+        self.player_animation = PlayerAnimationSystem("player")
         self.movement = MovementSystem(x - 128, y - 128, x + 128, y + 128)
 
         self.world.add_system(self.player_animation)
@@ -147,49 +148,49 @@ class Game:
                 player_pos[1] += speed_y
                 self.player.velocity.vx = speed_x
                 self.player.velocity.vy = -speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.RIGHT_UP
+                self.player.facing.set("right_up")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_RIGHT) and game_input.is_key_held(SDLK_DOWN):
                 player_pos[0] -= speed_x
                 player_pos[1] -= speed_y
                 self.player.velocity.vx = speed_x
                 self.player.velocity.vy = speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.RIGHT_DOWN
+                self.player.facing.set("right_down")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_LEFT) and game_input.is_key_held(SDLK_UP):
                 player_pos[0] += speed_x
                 player_pos[1] += speed_y
                 self.player.velocity.vx = -speed_x
                 self.player.velocity.vy = -speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.LEFT_UP
+                self.player.facing.set("left_up")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_LEFT) and game_input.is_key_held(SDLK_DOWN):
                 player_pos[0] += speed_x
                 player_pos[1] -= speed_y
                 self.player.velocity.vx = -speed_x
                 self.player.velocity.vy = speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.LEFT_DOWN
+                self.player.facing.set("left_down")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_LEFT):
                 player_pos[0] += speed_x
                 self.player.velocity.vx = -speed_x
-                # motion_type = MotionType.WALKING
-                # facing = Facing.LEFT
+                self.player.facing.set("left")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_RIGHT):
                 player_pos[0] -= speed_x
                 self.player.velocity.vx = speed_x
-                # motion_type = MotionType.WALKING
-                # facing = Facing.RIGHT
+                self.player.facing.set("right")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_UP):
                 player_pos[1] += speed_y
                 self.player.velocity.vy = -speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.UP
+                self.player.facing.set("up")
+                self.player.motiontype.set("walking")
             elif game_input.is_key_held(SDLK_DOWN):
                 player_pos[1] -= speed_y
                 self.player.velocity.vy = speed_y
-                # motion_type = MotionType.WALKING
-                # facing = Facing.DOWN
+                self.player.facing.set("down")
+                self.player.motiontype.set("walking")
 
             # elif game_input.was_key_pressed(SDLK_i):
             #    self.player.toggle_inventory()
@@ -203,7 +204,7 @@ class Game:
             else:
                 self.player.velocity.vx = 0
                 self.player.velocity.vy = 0
-                # motion_type = MotionType.STANDING
+                self.player.motiontype.set("standing")
 
             current_time = SDL_GetTicks()  # units.MS
             elapsed_time = current_time - last_update_time  # units.MS

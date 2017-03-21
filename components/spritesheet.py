@@ -18,8 +18,10 @@ RESOURCES = Resources(__file__, '..', 'resources')
 class SpriteSheet:
     """ Sprite sheet """
 
-    def __init__(self):
+    def __init__(self, name):
         super(SpriteSheet, self).__init__()
+
+        self.name = name
 
         self.frame = 0
 
@@ -36,7 +38,7 @@ class SpriteSheet:
         self.sprites_path = {}
 
         for k, v in self.motion_types.items():
-            self.sprites_path[v] = RESOURCES.get_path("{0}_{1}.png".format("player", k))
+            self.sprites_path[v] = RESOURCES.get_path("{0}_{1}.png".format(self.name, k))
 
         self.surfaces = {}
         self.surfaces_size = {}
@@ -48,6 +50,7 @@ class SpriteSheet:
             self.surfaces_size[k] = self.surfaces[k].w, self.surfaces[k].h
             self.surfaces_with.append(self.surfaces[k].w)
             self.surfaces_height += self.surfaces[k].h
+            self.surface_height = self.surfaces[k].h
 
         self.surfaces_with = max(self.surfaces_with)
 
@@ -60,9 +63,9 @@ class SpriteSheet:
                                             0x00FF0000,
                                             0xFF000000)
         i = 0
-        for name, surface in self.surfaces.items():
-            vertical_offset = i * self.surfaces[name].h
-            rect = SDL_Rect(0, vertical_offset, self.surfaces[name].w, self.surfaces[name].h)
+        for filename, surface in self.surfaces.items():
+            vertical_offset = i * self.surfaces[filename].h
+            rect = SDL_Rect(0, vertical_offset, self.surfaces[filename].w, self.surfaces[filename].h)
             SDL_BlitSurface(surface, None, self.surface, rect)
             i += 1
 
@@ -72,7 +75,9 @@ class SpriteSheet:
         self.motion_type = motion_type
         self.facing = facing
 
-        crop = self.frame * 128, self.facing * 128, 128, 128
+        crop = self.frame * self.sprite_size[0], \
+            self.facing * self.sprite_size[1] + self.surface_height * self.motion_type, \
+            self.sprite_size[0], self.sprite_size[1]
 
         self.sprite_surface = subsurface(self.surface.contents, crop)
 
@@ -80,7 +85,6 @@ class SpriteSheet:
 
     def get_sprite(self):
         surface = self.get_surface(0, 0, 0)
-
         return SoftwareSprite(surface, True)
 
     def get_sprite_sheet_width(self, motion_type):
