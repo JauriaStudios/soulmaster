@@ -11,6 +11,7 @@ from sdl2 import SDL_GetTicks, \
     SDLK_DOWN, \
     SDLK_LEFT, \
     SDLK_SPACE
+
 from sdl2.ext import Resources, \
     get_events
 
@@ -18,11 +19,14 @@ from const import WindowSize
 from db import DataBase
 from input import Input
 from map import Map
-from npc import NPC
+from npc import Npc
 from player import Player
+
 from components.spritesheet import SpriteSheet
-from systems.animation import AnimationSystem
-from systems.movement import MovementSystem
+from systems.player_animation import PlayerAnimationSystem
+from systems.player_movement import PlayerMovementSystem
+from systems.npc_animation import NpcAnimationSystem
+from systems.npc_movement import NpcMovementSystem
 
 FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
@@ -56,18 +60,26 @@ class Game:
         # self.map_file = MAPS.get_path("map.tmx")
         # self.map_background_sprite = Map(self.map_file, "background")
 
-        self.player_sprite_sheet = SpriteSheet("player")
+        self.npc_sprite_sheet = SpriteSheet("Edelbert")
+        self.npc_sprite = self.npc_sprite_sheet.get_sprite()
+        self.npc = Npc(self.world, self.npc_sprite, 0, 0)
+
+        self.player_sprite_sheet = SpriteSheet("Player")
         self.player_sprite = self.player_sprite_sheet.get_sprite()
         self.player = Player(self.world, self.player_sprite, x - 64, y - 64)
 
-        self.animation = AnimationSystem("player")
+        self.player_animation = PlayerAnimationSystem("Player")
+        self.npc_animation = NpcAnimationSystem("Edelbert")
 
-        self.movement = MovementSystem(x - 128, y - 128, x + 128, y + 128)
+        self.player_movement = PlayerMovementSystem(x - 128, y - 128, x + 128, y + 128)
+        self.npc_movement = PlayerMovementSystem(0, 0, WindowSize.WIDTH, WindowSize.HEIGHT)
 
         # self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
 
-        self.world.add_system(self.animation)
-        self.world.add_system(self.movement)
+        self.world.add_system(self.player_animation)
+        self.world.add_system(self.player_movement)
+        self.world.add_system(self.npc_animation)
+        self.world.add_system(self.npc_movement)
 
         self.world.add_system(self.renderer)
 

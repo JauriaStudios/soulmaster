@@ -17,6 +17,7 @@ RESOURCES = Resources(__file__, 'resources')
 
 class Player(Entity):
     def __init__(self, world, sprite, posx=0, posy=0):
+        super(Player, self).__init__()
 
         self.sprite = sprite
         self.sprite.position = posx, posy
@@ -25,8 +26,8 @@ class Player(Entity):
         self.motiontype = MotionType()
         self.facing = Facing()
         self.velocity = Velocity()
-        
-        self.player_data = PlayerData()
+
+        self.playerdata = PlayerData()
 
 
 class PlayerData:
