@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from sdl2 import SDL_Rect, SDL_RenderCopy
-from sdl2.ext import Resources, SpriteFactory, TEXTURE
+from sdl2 import SDL_Rect,\
+    SDL_RenderCopy
+
+from sdl2.ext import Resources,\
+    SpriteFactory,\
+    TEXTURE
 
 from const import WindowSize
 from utils import int_map
@@ -89,7 +93,6 @@ class Spell:
 
         self.last_facing = self.facing
 
-        renderer = self.renderer
         facing = self.facing
         facing_position = self.facing_position
         frame_index = self.frame_index
@@ -104,6 +107,8 @@ class Spell:
                        sprite_size]
 
         """
+        renderer = self.renderer
+
         src_rect = SDL_Rect()
 
         src_rect.x = frame_index * sprite_size
