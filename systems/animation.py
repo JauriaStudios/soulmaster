@@ -20,9 +20,9 @@ from components.motion import MotionType
 from components.facing import Facing
 
 
-class PlayerAnimationSystem(Applicator):
+class AnimationSystem(Applicator):
     def __init__(self, name):
-        super(PlayerAnimationSystem, self).__init__()
+        super(AnimationSystem, self).__init__()
         self.componenttypes = Frames, MotionType, Facing, Sprite
 
         self.sprite_sheet = SpriteSheet(name)

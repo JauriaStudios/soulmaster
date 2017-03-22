@@ -21,10 +21,10 @@ from map import Map
 from npc import NPC
 from player import Player
 from components.spritesheet import SpriteSheet
-from systems.animation import PlayerAnimationSystem
+from systems.animation import AnimationSystem
 from systems.movement import MovementSystem
 
-FPS = 30  # units.FPS
+FPS = 60  # units.FPS
 MAX_FRAME_TIME = int(5 * (1000 / FPS))
 
 RESOURCES = Resources(__file__, 'resources')
@@ -50,36 +50,39 @@ class Game:
         x = int(WindowSize.WIDTH / 2)
         y = int(WindowSize.HEIGHT / 2)
 
-        map_file = MAPS.get_path("map.tmx")
+        self.all_npc = []
+        self.init_map("Debug Room")
 
-        self.map_background_sprite = Map(map_file, "background")
-        self.player_sprite = SpriteSheet("player").get_sprite()
+        # self.map_file = MAPS.get_path("map.tmx")
+        # self.map_background_sprite = Map(self.map_file, "background")
+
+        self.player_sprite_sheet = SpriteSheet("player")
+        self.player_sprite = self.player_sprite_sheet.get_sprite()
         self.player = Player(self.world, self.player_sprite, x - 64, y - 64)
 
-        self.player_animation = PlayerAnimationSystem("player")
+        self.animation = AnimationSystem("player")
+
         self.movement = MovementSystem(x - 128, y - 128, x + 128, y + 128)
-
-        self.world.add_system(self.player_animation)
-        self.world.add_system(self.movement)
-
-        # self.all_npc = []
-        # self.init_npc("Debug Room")
 
         # self.all_enemies = [Enemy(self.renderer, self.factory, "doombat")]
 
+        self.world.add_system(self.animation)
+        self.world.add_system(self.movement)
+
         self.world.add_system(self.renderer)
 
-    def init_npc(self, map_name):
+    def init_map(self, map_name):
 
         map_data = self.db.get_map_npc(map_name)
         map_npc = []
 
         for data in map_data:
             map_npc.append(data["npc"])
+            print(data)
 
-        for npc in map_npc:
-            self.all_npc.append(NPC(self.renderer, self.factory, npc))
-
+        # for npc in map_npc:
+        #    self.all_npc.append(NPC(self.renderer, self.factory, npc))
+    """
     def get_sprites(self):
 
         self.sprites.append(self.map_background_sprite)
@@ -107,6 +110,7 @@ class Game:
 
         for enemy in self.all_enemies:
             enemy.update(position, elapsed_time)
+    """
 
     def run(self):
 

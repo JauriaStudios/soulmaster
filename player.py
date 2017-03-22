@@ -24,9 +24,8 @@ class Player(Entity):
         self.frames = Frames()
         self.motiontype = MotionType()
         self.facing = Facing()
-
         self.velocity = Velocity()
-
+        
         self.player_data = PlayerData()
 
 
