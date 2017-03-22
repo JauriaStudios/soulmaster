@@ -1,20 +1,43 @@
 # -*- coding: utf-8 -*-
 
-import json
+from sdl2.ext import Resources, \
+    Entity
 
-from sdl2 import SDL_Rect,\
-    SDL_RenderCopy
+from components.frames import Frames
+from components.motion import MotionType
+from components.facing import Facing
 
-from sdl2.ext import Resources
-
-from const import WindowSize, Colors
-from utils import Timer, dice
-from db import DataBase
-from ui import DialogBox
+from components.velocity import Velocity
 
 RESOURCES = Resources(__file__, 'resources')
 
 
+class Npc(Entity):
+    def __init__(self, world, sprite, posx=0, posy=0):
+        super(Npc, self).__init__()
+
+        self.sprite = sprite
+        self.sprite.position = posx, posy
+
+        self.frames = Frames()
+        self.motiontype = MotionType()
+        self.facing = Facing()
+        self.velocity = Velocity()
+
+        self.npcdata = NpcData()
+
+
+class NpcData:
+    def __init__(self):
+        super(NpcData, self).__init__()
+
+        self.ai = True
+        self.ally = True
+
+        self.life = 100
+
+
+"""
 class MotionType:
     STANDING = 0
     WALKING = 1
@@ -166,26 +189,6 @@ class NPC:
 
         self.sprites.append(sprite)
 
-        """
-        renderer = self.renderer
-
-        src_rect = SDL_Rect()
-
-        src_rect.x = frame_index * sprite_size
-        src_rect.y = facing * sprite_size
-        src_rect.w = sprite_size
-        src_rect.h = sprite_size
-
-        dest_rect = SDL_Rect()
-
-        dest_rect.x = x
-        dest_rect.y = y
-        dest_rect.w = sprite_size
-        dest_rect.h = sprite_size
-
-        SDL_RenderCopy(renderer, sprite.texture, src_rect, dest_rect)
-        """
-
     def get_sprites(self):
         return self.sprites
 
@@ -232,3 +235,4 @@ class NPC:
         sprites = self.dialog_box.get_sprites()
         for sprite in sprites:
             self.dialog_sprites.append(sprite)
+"""
