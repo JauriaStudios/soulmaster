@@ -151,12 +151,15 @@ class Game:
                     game_input.key_up_event(event)
 
                 elif event.type == SDL_QUIT:
+                    self.clear()
                     self.running = False
                     break
 
             # Exit
             if game_input.was_key_pressed(SDLK_ESCAPE):
+                self.clear()
                 self.running = False
+                break
 
             # Player movement
             if game_input.is_key_held(SDLK_RIGHT) and game_input.is_key_held(SDLK_UP):
@@ -234,3 +237,13 @@ class Game:
             elapsed_time = SDL_GetTicks() - start_time  # units.MS
             if elapsed_time < ms_per_frame:
                 SDL_Delay(ms_per_frame - elapsed_time)
+
+    def clear(self):
+        self.player.delete()
+        self.npc.delete()
+
+        self.world.remove_system(self.player_animation)
+        self.world.remove_system(self.npc_animation)
+
+        self.world.remove_system(self.player_movement)
+        self.world.remove_system(self.npc_movement)
