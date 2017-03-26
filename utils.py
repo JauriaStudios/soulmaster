@@ -66,7 +66,7 @@ class Timer:
         """ Update the timer"""
         if self.activated:
             self.current_ticks = SDL_GetTicks()
-            self.current_ticks -= self.start_ticks
+            # self.current_ticks -= self.start_ticks
             if self.current_ticks - self.previous_ticks >= self.interval:
                 self.previous_ticks = self.current_ticks
                 self.enabled = True

@@ -21,11 +21,15 @@ from components.facing import Facing
 
 from player import PlayerData
 
+from utils import Timer
+
 
 class PlayerAnimationSystem(Applicator):
     def __init__(self, name):
         super(PlayerAnimationSystem, self).__init__()
         self.componenttypes = PlayerData, Frames, MotionType, Facing, Sprite
+
+        self.frame_timer = Timer(60, True)
 
         self.sprite_sheet = SpriteSheet(name)
 
@@ -42,6 +46,8 @@ class PlayerAnimationSystem(Applicator):
 
             if not playerdata.life:
                 return
+
+            self.frame_timer.update()
 
             self.facing = facing.get()
             self.motion_type = motion_type.get()
@@ -62,4 +68,7 @@ class PlayerAnimationSystem(Applicator):
             SDL_FillRect(self.sprite_surface, None, 0x000000)
             SDL_BlitSurface(self.surface, None, self.sprite_surface, rect)
 
-            frames.bump()
+            if self.frame_timer.check():
+                self.frame_timer.reset()
+                self.frame_timer.activate()
+                frames.bump()
