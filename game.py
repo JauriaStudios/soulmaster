@@ -151,9 +151,12 @@ class Game:
                     game_input.key_up_event(event)
 
                 elif event.type == SDL_QUIT:
-                    self.clear()
                     self.running = False
                     break
+
+            if not self.running:
+                self.clear()
+                break
 
             # Exit
             if game_input.was_key_pressed(SDLK_ESCAPE):
