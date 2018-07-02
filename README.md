@@ -1,4 +1,4 @@
-Copyright © 2017 by Jauria Studios
+Copyright © 2017–2018 by Jauria Studios
 
 SoulMaster is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
